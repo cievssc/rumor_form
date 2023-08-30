@@ -1,0 +1,246 @@
+/*
+* layout dashboard Pratico
+* @author Dimitri
+* @version 0.1
+*/
+/*ajeitar as cores das abas, que não estão seguindo as mesmas cores da navegação (29-nov-2018)*/
+
+/* -----------------layout----------------- */
+html, body, { /*ocupando todo o espaço*/
+	height: 100%;
+}
+
+
+body {
+	/*background: linear-gradient(50deg,#ff4169,#5cd65c); /*--backgrounds compostos--*/
+	background-attachment: fixed; /*background travado*/	
+	font-family: 'Helvetica' 'arial' 'serif';
+	overflow-x: hidden;
+}
+
+/* -- coluna com os filtros -- */
+.ferramenta {
+	background-color: rgba(255,255,255,0.8);
+	padding: 15px;
+}
+
+/* -- barra de navegação -- */
+.img-logo {
+	height: 40px;
+	width: 132px;
+	/*background: url('imagens/spotify.svg') no-repeat; /*imagem repete*/
+	display: block;
+	background-size: contain; /*define imagem de fundo*/
+	color: transparent;
+}
+
+nav.navbar, nav.navbar-default{
+	padding: 0px;
+	background: rgba(0,0,0,0.4);
+	border: none;
+
+}
+ /*Centralizando o logo do spotify*/
+.navbar-brand {
+	padding: 5px 15px;
+}
+
+
+.divisor {
+	width: 1px;
+	height: 16px;
+	background: white;
+	margin: 16px 10px;
+}
+
+/*editando a aba ativa (29-nov-2018)*/
+.navbar-nav li a:hover, .navbar-nav > .active > a {
+color: #fff !important;
+
+background:none !important;
+background-image: none !important;
+}
+/* -----------------imagem de capa-------- */
+.capa {
+	display: table;
+	width: 100%;
+}
+
+.texto-capa{
+	text-align: center;
+	color:	white;
+	display: table-cell;
+	vertical-align: middle;
+	transition: background 0.4s, color: 0.4s;
+}
+
+/* -----------------botões----------------- */
+
+.btn-custom { 
+	color: white;
+	border-radius: 500px; /*arredondamentos*/
+	-webkit-border-radius: 500px; /*arredondamentos*/
+	-moz-border-radius: 500px; /*arredondamentos*/
+	padding: 10px 35px;
+	margin: 0 15px;
+	text-transform: uppercase;
+	transition: background 0.4s, color 0.4s;
+}
+
+.btn-roxo {
+	background: #7c25f8;	
+}
+
+.btn-roxo:hover {
+	background-color: #6207e3;
+	color: white;
+}
+
+.btn-branco {
+	border: 2px solid white;
+}
+
+.btn-branco:hover {
+	background-color: white;
+	color: black;
+}
+
+/* -----------------Serviços--------------- */
+#servicos {
+	background: white;
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+
+.albuns {
+	padding: 10px 0 10px 0;
+}
+
+/* -----------------Recursos--------------- */
+#recursos {
+	padding-top: 20px;
+	padding-bottom: 20px;
+	color: white;
+}
+
+.rotacionar {
+	transform: rotate(30deg);
+	-webkit-transform: rotate(30deg);
+	padding-left: 80px;
+}
+
+/*footer*/
+
+footer {
+	background: #000;
+	padding: 50px 0px 20px 0px;
+	position: relative;
+}
+
+.item-rede-social {
+	float: right;
+}
+
+/* -----------------Tipografia------------- */
+
+h1 {
+	font-size: 100px;
+	font-weight: 900;
+	letter-spacing: -0.05em;
+	margin-bottom: 50px;
+}
+
+h2 {
+	font-size: 50px;
+	font-weight: 700;
+	letter-spacing: -0.04em;
+}
+
+h3 {
+	font-size: 35px;
+	font-weight: 700;
+	letter-spacing: -0.04em;
+}
+
+#servicos h2, #servicos h3 {
+	color: #7c25f8;
+}
+
+#recursos h3 {
+	color: #9bf0e1;
+}
+
+#rodape h4 {
+	color: #919496;
+	font-size: 12px;
+	text-transform: uppercase;
+}
+
+/*editando as boxes do mal (05-dez-2018)*/
+/*
+.main-header .logo {
+    background: url('logo_sc.png') no-repeat; //imagem repete
+    background-position: left bottom;
+	display: block;
+	background-size: contain;
+	padding-left: 5px;
+}*/
+
+/*dygraph*/
+.dygraph-legend > span { display: none; }
+.dygraph-legend > span.highlight { display: inline; }
+
+
+/* scroll bar das tabelas (28-jan-2020) */
+
+
+ #tab_munic {
+	overflow-y: scroll;
+	height: 280px
+ }
+
+ #tab_evento {
+	overflow-y: scroll;
+	height: 280px
+ }
+
+ #tabela1 {
+	overflow-y: scroll;
+	height: 500px;
+	font-size: 14px
+ }
+
+
+.scrollery {
+	overflow-y: scroll;
+	height: 300px
+ }
+
+/*editando backgroundo dos highcharts */
+
+ rect.highcharts-background {
+ 	fill: rgba(255,255,255,0.3);
+ }
+
+
+ /*ttulo (23-jun-2020)*/
+ .myClass { 
+line-height: 50px;
+text-align: left;
+font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+padding: 0 15px;
+overflow: hidden;
+color: white;
+font-size: 12px;
+    }
+@media (min-width: 800px) {
+  .myClass {
+    line-height: 50px;
+    text-align: left;
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+	padding: 0 15px;
+	overflow: hidden;
+	color: white;
+	font-size: 16px;
+    }}
+  

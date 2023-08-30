@@ -1,0 +1,79 @@
+/*layout shinyapp agribusiness Epagri*/
+/*---------------------------*/
+/*@author: Dimitri;-----------*/
+/*version: 0.1---------------*/
+
+
+/**/
+body {
+	background: linear-gradient(70deg,#fff,#ff5733); /*--backgrounds compostos--*/
+	background-attachment: fixed; /*background travado*/	
+	font-family: 'Helvetica' 'arial' 'serif';
+	overflow-x: hidden;
+	background-size: contain; /*define imagem de fundo*/
+}
+
+html body {
+	height: 100%;
+}
+
+
+/* -- barra de navegação -- */
+.img-logo {
+	height: 40px;
+	width: 132px;
+	background: url('epagri_logo.png') no-repeat; /*imagem repete*/
+	display: block;
+	background-size: contain; /*define imagem de fundo*/
+	color: transparent;
+	}
+
+/* -- página das exportações --------------- */
+.ferramenta {
+	background-color: rgba(255,255,255,0.8);
+	padding: 15px;
+}
+
+
+ /*Centralizando o logo*/
+.navbar-brand {
+	padding: 5px 0 50px 55px;
+}
+
+
+/* página do pib*/
+.wrapper {
+    display: flex;
+    width: 100%;
+    align-items: stretch;
+}
+
+.sidebar {
+    min-width: 250px;
+    max-width: 250px;
+    background: rgba(255,255,255,0.8);
+    transition: all 0.3s;
+    padding: 15px;
+}
+
+.sidebar .sidebar-header {
+    padding: 10px;
+    background: rgba(255,255,255,1);
+}
+
+/* ---------------------------------------------------
+    CONTENT STYLE
+----------------------------------------------------- */
+
+.content {
+    width: 100%;
+    padding: 20px;
+    min-height: 100vh;
+    transition: all 0.3s;
+}
+
+
+
+
+
+

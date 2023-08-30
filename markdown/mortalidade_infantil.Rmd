@@ -1,0 +1,125 @@
+---
+geometry: "left=1cm,right=1cm,top=2cm,bottom=2cm"
+params:
+  data: !r NA
+  val_date: !r Sys.Date()
+fontsize: 12pt
+output: 
+  pdf_document: 
+    keep_tex: yes
+    latex_engine: xelatex
+    includes:
+      in_header: mystyles.sty
+always_allow_html: yes
+---
+
+```{r options, message = FALSE, warning = FALSE, echo = FALSE}
+
+# determine if running in Shiny or not
+is_in_shiny <- if(is.null(shiny::getDefaultReactiveDomain())) FALSE else TRUE
+if (is_in_shiny == TRUE) shiny::incProgress(amount = 0, message = "Preparando")
+
+# packages
+ library(dplyr)
+ library(lubridate)
+ library(knitr)
+ library(kableExtra)
+ #library(summaryrow) # remotes::install_github("merlinoa/summaryrow")
+
+# knitr options
+knitr::opts_chunk$set(
+  echo = FALSE
+)
+
+options(knitr.table.format = "latex")
+
+```
+
+<!--
+
+
+-->
+
+```{r data_prep, eval = TRUE}
+if (is_in_shiny) shiny::incProgress(amount = 0.25, message = "Loading Data")
+
+ # parameters
+ dados <- params$data
+ 
+ 
+ escolaridade <- c('Sem escolaridade','Fundamental I','Fundamental II', 'Ensino médio'  ,'Superior Incompleto', 'Superior Completo' )
+ sit_conjugal <- c('Casado', 'Solteiro' , 'Viúvo' , 'Separado/divorciado' , 'União estável', 'Ignorado' )
+ cor_pele <-   c('Branca', 'Preta', 'Amarela', 'Parda', 'Indígena' )
+ pessoa_resp <-  c('Mãe' , 'Responsável')
+ tipo_parto <- c('Vaginal', 'Cesáreo', 'Não se aplica')
+ tipo_idade <- c('Horas','Minuto', 'Não Aplicável')
+
+```
+
+
+
+\newpage
+
+
+\begin{center}
+\Large
+   Formulário de registro \\
+   de Mortalidade Infantil.
+\Large
+\end{center}
+
+\vspace{0.4cm}
+<!-- em seguida, moddificar aqui quando estrugturar a lista de usuários-->
+ \begin{tabular}{p{0.33\textwidth}p{0.33\textwidth}p{0.33\textwidth}}
+ 
+ Responsável: `r dados$send_usuario`  &   & Número do registro: `r dados$id` \\
+ 
+ Data do evento: `r dados$dat_obito` & UF do óbito: `r dados$inf_uf_obito` &  Município do óbito: `r dados$municipio`   \\
+ 
+ Endereço do óbito: `r dados$endereco` &  Hospital: `r dados$hospital` & Local do ocorrido: `r dados$local_obito ` 
+
+\end{tabular}
+
+ Informações adicionais:
+ 
+ `r dados$inf_adicional`
+ 
+ \vspace{0.4cm}
+ \hrule
+ 
+ \begin{center}
+ \large Dados do Paciente 
+ \end{center}
+ 
+ \begin{tabular}{p{0.33\textwidth}p{0.33\textwidth}p{0.33\textwidth}}
+ 
+ Paciente: `r dados$paciente` & Sexo: `r if(dados$sexo == 1){"Masculino"}else{"Feminino"}` & Declaração Nascido Vivo: `r dados$dec_nascidovivo` \\
+ 
+ Data de Nascimento: `r dados$dat_nascimento` &  Peso: `r dados$peso` & Declaração Óbito (DO): `r dados$dec_obito` \\
+ 
+ Tipo idade: `r tipo_idade[dados$tipo_idade]` & Idade: `r floor(dados$idade)` & Hora-min: `r dados$idade_horamin` 
+ 
+ \end{tabular}
+ 
+  \vspace{0.4cm}
+ \hrule
+ 
+ \begin{center}
+ \large Dados do Responsável 
+ \end{center}
+
+ \begin{tabular}{p{0.33\textwidth}p{0.33\textwidth}p{0.33\textwidth}}
+ Pessoa responsável: `r pessoa_resp[dados$pessoa_responsavel]` & Nome responsável: `r dados$nome_responsavel` & Idade responsável: `r dados$idade_responsavel` \\  
+ 
+ Escolaridade: `r escolaridade[dados$escolaridade] ` & Cor da pele: `r cor_pele[dados$cor]` & Situação conjugal: `r sit_conjugal[dados$sit_conjungal] ` \\
+ 
+ Ocupação exercida: `r dados$ocupacao_exercida` &  Código CBO: `r dados$codigo_cbo` &    \\
+
+ Idade gestacional: `r dados$idade_gest` & Quantidade de gestações: `r dados$qtde_gestacao` & Tipo de parto: `r tipo_parto[dados$tipo_parto]` \\   
+ 
+ Quantidade de Filhos: `r dados$qtde_filhos  ` & Óbito evitável:  `r if(dados$obt_evitavel == 1){"Sim"}else{"Não"}` & CID Evitável: `r dados$cid_evitavel` 
+ 
+\end{tabular}
+
+
+

@@ -1,0 +1,442 @@
+---
+title: "Relatório <br>Óbito precoce."
+output:
+ html_document:
+  theme:
+   version: 4 
+   bootswatch: cerulean
+params:
+  data: !r NA
+  municipiopoly: !r NA
+  cid10: !r NA
+  periodo: !r NA
+always_allow_html: yes
+---
+<!--
+<script defer src="https://use.fontawesome.com/releases/v5.15.4/js/all.js"
+          integrity="sha384-slN8GvtUJGnv6ca26v8EzVaR9DC58QEwsIk9q1QXdCU8Yu8ck/tL/5szYlBbqmS+"
+           crossorigin="anonymous"></script>
+--> 
+```{r setup, include=FALSE}
+# determine if running in Shiny or not
+is_in_shiny <- if(is.null(shiny::getDefaultReactiveDomain())) FALSE else TRUE
+if (is_in_shiny == TRUE) shiny::incProgress(amount = 20, message = "Preparando")
+
+knitr::opts_chunk$set(echo = F, warning = FALSE, include = T,dev = c('svg'))
+library('summaryBox')
+library('kableExtra')
+library('ggplot2')
+
+theme_set(theme_minimal())
+
+
+```
+
+```{r preparacao, include=FALSE}
+if (is_in_shiny == TRUE) shiny::incProgress(amount = 20, message = "Preparando...")
+dados_relatorio <- params$data
+dados_relatorio$semana <- cut(dados_relatorio$dat_obito, breaks = '2 weeks')
+dados_relatorio <- dados_relatorio[!is.na(dados_relatorio$fumante),]
+
+
+ municipiopoly <- params$municipiopoly
+ cid10 <- params$cid10
+
+#dados para caracterização
+dadoi <- dados_relatorio[,c('fumante','obeso','ativfisica','bebida','hipertensao','diabetes','cancer')]
+ 
+ dadoi <- purrr::map_df(dadoi, function(x){as.data.frame(table(x))}, .id = 'fator')
+ dadoi <- tidyr::spread(dadoi, value = Freq, key = x)
+ dadoi[is.na(dadoi)] <- 0
+
+ municipio_sf <- sf::st_as_sf(municipiopoly)
+ 
+ #add em 03-nov-2022
+ #funcao para label de quinzena
+ func_semana <- function(x,y){
+                 label <- NULL
+                 x <- format(as.Date(levels(x)), '%d-%m-%Y')
+                 ultimo <- format(max(y, na.rm = T), '%d-%m-%Y')
+                 for(i in seq_along(x)){
+                     label[i] <- paste0(x[i], ' à\n',x[i+1])
+                     if(i == length(x)){
+                     label[i] <- paste0(x[i], ' à\n',ultimo)     
+                          }
+                     }
+                label
+                         }
+ 
+```
+
+
+<br>
+
+<span style = "font-size: 20pt;"> Período de análise: `r min(dados_relatorio$dat_obito, na.rm = T)` à `r max(dados_relatorio$dat_obito, na.rm = T)`
+
+```{r box}
+summaryBox("Óbitos totais", nrow(dados_relatorio), width = 12,  style = 'info')
+```
+
+<br>
+
+## Série temporal das informações
+
+```{r serie_dados, fig.align='center', fig.width = 11 }
+
+ #série temporal
+ serie <- with(dados_relatorio, as.data.frame(table(semana)) )
+ label <- func_semana(serie$semana, dados_relatorio$dat_obito)
+ 
+ 
+ ggplot(serie, aes(x = semana, y = Freq)) +
+ geom_col(fill = '#269CEA') +
+ theme(legend.position = 'bottom',axis.text.x = element_text(angle=45)) +
+ xlab('Quinzena') + ylab('Óbitos\nregistrados')  +
+ scale_x_discrete(labels = label)
+
+```
+
+<br>
+
+## Mapa dos óbitos
+<br>
+
+<div class = "row">
+<div class = "col-md-6">
+### Ocorrência<br> dos óbitos
+
+```{r mapa, }
+ qtde_obito <- with(dados_relatorio, as.data.frame(table(municipio_obito)))
+ quantis <- quantile(c(min(qtde_obito[,2]), max(qtde_obito[,2]))) %>% ceiling
+ if(any(duplicated(quantis))){
+    label <- paste0(quantis[1],'-',quantis[5])
+    qtde_obito$faixa <- as.factor(label)
+    }else{
+ label <- NULL
+ for(i in 1:4){
+     label[i] <- paste0(quantis[i],'-',quantis[i+1]-1)
+     if(i == 4){label[i] <- paste0(quantis[i],'-',quantis[i+1])}}
+ 
+ qtde_obito$faixa <- cut(qtde_obito[,2], breaks = quantile(c(min(qtde_obito[,2]), max(qtde_obito[,2]))), 
+                         include.lowest = T, labels = label)
+         }                
+ 
+ mapa_obito <- left_join(municipio_sf, qtde_obito, by = c('Municipio' = 'municipio_obito'))
+ ggplot(mapa_obito) +
+ geom_sf(aes(fill = faixa)) +
+ scale_fill_manual(values = c('#bdd7e7','#6baed6','#3182bd','#08519c'),
+                   na.translate = F, name = 'Quantidade de\nÓbitos') +
+ theme(legend.position = 'bottom', axis.text.x = element_blank(), axis.text.y = element_blank(),
+       axis.ticks.x=element_blank(), axis.ticks.y=element_blank(), panel.grid = element_blank())
+
+```
+
+<br>
+
+```{r tabela_municipio_obito, }
+
+tabela <- with(dados_relatorio, as.data.frame(table(municipio_obito)))
+tabela <- arrange(tabela, desc(Freq))
+names(tabela) <- c('Município', 'Qtde')
+
+knitr::kable(tabela)   %>%
+kable_styling(bootstrap_options = c('hover', 'striped')  )  %>%
+  scroll_box(width = "100%", height = "450px")
+
+```
+
+</div>
+
+<div class = "col-md-6">
+
+### Residência<br> dos falecidos
+
+
+```{r mapa_resid, }
+ qtde_obito <- with(dados_relatorio, as.data.frame(table(municipio_residencia)))
+ quantis <- quantile(c(min(qtde_obito[,2]), max(qtde_obito[,2])))  %>% ceiling
+if(any(duplicated(quantis))){
+    label <- paste0(quantis[1],'-',quantis[5])
+    qtde_obito$faixa <- as.factor(label)
+    }else{
+ label <- NULL
+ for(i in 1:4){
+     label[i] <- paste0(quantis[i],'-',quantis[i+1]-1)
+     if(i == 4){label[i] <- paste0(quantis[i],'-',quantis[i+1])}}
+ 
+ qtde_obito$faixa <- cut(qtde_obito[,2], breaks = quantile(c(min(qtde_obito[,2]), max(qtde_obito[,2]))), 
+                         include.lowest = T, labels = label)
+         }
+                         
+ 
+ mapa_obito <- left_join(municipio_sf, qtde_obito, by = c('Municipio' = 'municipio_residencia'))
+ ggplot(mapa_obito) +
+ geom_sf(aes(fill = faixa)) +
+ scale_fill_manual(values = c('#bdd7e7','#6baed6','#3182bd','#08519c'),
+                   na.translate = F, name = 'Quantidade de\nÓbitos') +
+ theme(legend.position = 'bottom', axis.text.x = element_blank(), axis.text.y = element_blank(),
+       axis.ticks.x=element_blank(), axis.ticks.y=element_blank(), panel.grid = element_blank())
+
+```
+
+
+<br>
+
+```{r tabela_municipio_resid, }
+
+tabela <- with(dados_relatorio, as.data.frame(table(municipio_residencia)))
+tabela <- arrange(tabela, desc(Freq))
+names(tabela) <- c('Município', 'Qtde')
+
+knitr::kable(tabela)   %>%
+kable_styling(bootstrap_options = c('hover', 'striped')  )  %>%
+  scroll_box(width = "100%", height = "450px")
+
+```
+
+</div>
+</div> <!--end div duas colunas -->
+
+<br>
+
+## Estatísticas Descritivas
+
+<br>
+
+<div class = "row">
+<div class = "col-md-6">
+
+### Idade
+
+```{r idade, }
+if (is_in_shiny == TRUE) shiny::incProgress(amount = 20, message = "Estatísticas...")
+
+dados_relatorio$idade_graf <- cut(floor(dados_relatorio$idade), breaks = c(seq(0,70, 10), Inf), 
+                        labels = c('0-9', '10-19','20-29','30-39',
+                                   '40-49','50-59','60-69','>70'))
+
+tabela <- with(dados_relatorio, as.data.frame(table(idade_graf)))
+
+ggplot(tabela, aes(x = idade_graf, y = Freq)) + 
+geom_col(fill = '#269CEA') +
+geom_text(aes(label = Freq),position = position_dodge(),hjust = 0) + 
+ coord_flip() +
+ xlab('Faixa de\nidade') + ylab('Quantidade')
+
+```
+
+</div> 
+
+<div class = "col-md-6">
+
+### Sexo
+
+```{r sexo, }
+
+tabela <- with(dados_relatorio, as.data.frame(table(sexo)))
+levels(tabela$sexo)  <- c('Masculino', 'Feminino')
+tabela$Freq[tabela$Freq == 0] <- NA 
+tabela$prop <- with(tabela, Freq*100/sum(Freq, na.rm = T))
+tabela$ypos <- with(tabela, cumsum(prop) - 0.5*prop)
+
+ggplot(tabela, aes(x = sexo, y = Freq)) +
+geom_col(fill = '#269CEA') +
+geom_text(aes(label = Freq),position = position_stack(vjust = .5)) + 
+ #coord_flip() +
+ xlab('Sexo') + ylab('Quantidade')
+
+
+#ggplot(tabela, aes(x = "", y = prop, fill = sexo)) +
+#geom_bar(aes(fill = sexo), stat="identity", width=1, color="white") +
+#  coord_polar("y", start=0) +
+#  theme_void() + 
+#  theme(legend.position="bottom") +
+  
+ # geom_text(aes(y = ypos, label = paste0(round(prop,2),"%")), color = "white", size=6) +
+  #scale_fill_brewer(palette="Set1")
+ 
+```
+
+</div> 
+ </div> <!-- end 2 colunas -->
+
+<div class = "row">
+<div class = "col-md-6">
+
+### Escolaridade
+
+```{r escola, }
+tabela <- factor(dados_relatorio$escolaridade, levels = c(1:7))
+tabela <- as.data.frame(table(tabela))
+tabela$escolaridade <- as.factor(c('Sem escolaridade' ,'Fundamental I',
+                         'Fundamental II' , 'Ensino médio','Superior Incompleto', 'Superior Completo', 'Ignorado' ))
+tabela$Freq[tabela$Freq == 0] <- NA
+tabela$prop <- with(tabela, round(Freq*100/sum(Freq, na.rm = T),1)) %>% paste0(., '%')
+
+ggplot(tabela, aes(x = escolaridade, y = Freq)) + 
+geom_col(fill = '#269CEA') +
+geom_text(aes(label = paste0(Freq, ' (',prop,')' )),position = position_dodge(),hjust = 1) + 
+ coord_flip() +
+ xlab('Escolaridade') + ylab('Quantidade') 
+```
+
+</div> 
+
+<div class = "col-md-6">
+
+### Cor da pele
+
+```{r pele, }
+tabela <- factor(dados_relatorio$cor, levels = c(1:6))
+tabela <- as.data.frame(table(tabela))
+tabela$desc_cor <- as.factor(c('Branca' , 'Preta' , 'Amarela' , 'Parda' , 'Indígena', 'Ignorado'  ))
+tabela$Freq[tabela$Freq == 0] <- NA
+
+tabela$prop <- with(tabela, round(Freq*100/sum(Freq,na.rm = T),1)) %>% paste0(., '%')
+
+ggplot(tabela, aes(x = desc_cor, y = Freq)) + 
+geom_col(fill = '#269CEA') +
+geom_text(aes(label = paste0(Freq, ' (',prop,')' )),position = position_dodge(),hjust = 1) + 
+ coord_flip() +
+ xlab('Cor\nda pele') + ylab('Quantidade') 
+```
+
+</div> 
+
+</div> <!-- end 2 colunas -->
+
+<br>
+
+## Caracterização do Evento
+
+<br>
+
+### Fatores agravantes
+
+<div class = "row">
+<div class = "col-md-4">
+```{r atividade_fisica, }
+ texto <- paste0(dadoi[1,2], ' (', round(dadoi[1,2]*100/nrow(dados_relatorio),1),'%)' )
+ summaryBox("Fazia atividade física", texto, width  = NULL,  style = 'info')
+```
+</div> 
+
+<div class = "col-md-4">
+```{r bebida, }
+ texto <- paste0(dadoi[2,2], ' (', round(dadoi[2,2]*100/nrow(dados_relatorio),1),'%)' )
+ summaryBox("Consumo excessivo álcool", texto, width  = NULL,  style = 'info')
+```
+
+</div> 
+
+<div class = "col-md-4">
+```{r cancer, }
+ texto <- paste0(dadoi[3,2], ' (', round(dadoi[3,2]*100/nrow(dados_relatorio),1),'%)' )
+ summaryBox("Câncer", texto, width = NULL,  style = 'info')
+```
+
+</div> 
+</div>  <!-- end 3 colunas -->
+
+<div class = "row">
+<div class = "col-md-4">
+```{r diabetes_obeso, }
+ texto <- paste0(dadoi[4,2], ' (', round(dadoi[4,2]*100/nrow(dados_relatorio),1),'%)' )
+ summaryBox("Diabetes", texto, width  = NULL,  style = 'info')
+
+ texto <- paste0(dadoi[7,2], ' (', round(dadoi[7,2]*100/nrow(dados_relatorio),1),'%)' )
+ summaryBox("Obeso", texto, width  = NULL,  style = 'info')
+```
+</div> 
+
+<div class = "col-md-4">
+```{r fumante, }
+ texto <- paste0(dadoi[5,2], ' (', round(dadoi[5,2]*100/nrow(dados_relatorio),1),'%)' )
+ summaryBox("Fumante", texto, width  = NULL,  style = 'info')
+```
+
+</div> 
+
+<div class = "col-md-4">
+```{r hipertensao, }
+ texto <- paste0(dadoi[6,2], ' (', round(dadoi[6,2]*100/nrow(dados_relatorio),1),'%)' )
+ summaryBox("Hipertensão", texto, width = NULL,  style = 'info')
+```
+
+</div> 
+</div>  <!-- end 3 colunas -->
+
+<br>
+
+<div class = "row">
+<div class = "col-md-6">
+### Cid Base
+<br>
+ 
+```{r cid_base,} 
+if (is_in_shiny == TRUE) shiny::incProgress(amount = 30, message = "Caracterização...")
+
+qtde_cidbase <- with(dados_relatorio, as.data.frame(table(cid_base)))
+ qtde_cidbase <- left_join(qtde_cidbase, cid10, by = c('cid_base' = 'CAT'))
+ qtde_cidbase$evitavel <- ifelse(qtde_cidbase[,1] %in% lista_cidevitavel[,1], 'Evitável', 'Não evitável')
+
+ evitavel <- aggregate(Freq ~ evitavel, data = qtde_cidbase, FUN = sum)
+ 
+texto <- paste0(evitavel[1,2], ' (', round(evitavel[1,2]*100/nrow(dados_relatorio),1),'%)' )
+summaryBox("Óbitos por causas evitáveis", texto, width = NULL,  style = 'info') 
+
+```
+
+<br>
+
+#### Lista de Cid Causa Básica
+
+```{r cid_base_tab,} 
+tabela <- arrange(qtde_cidbase, desc(Freq))
+tabela <- tabela[,c(1,3,2)]
+names(tabela) <- c('Código', 'Descrição', 'Qtde')
+
+knitr::kable(tabela)   %>%
+kable_styling(bootstrap_options = c('hover', 'striped')  )   %>%
+  scroll_box(width = "100%", height = "300px")
+
+```
+
+</div> 
+
+
+<div class = "col-md-6">
+### Cid Causas Consequenciais
+
+<br>
+ 
+```{r cid_secundario,} 
+ qtde_cidsec <- with(dados_relatorio, as.data.frame(table(cid_sec)))
+ qtde_cidsec <- left_join(qtde_cidsec, cid10, by = c('cid_sec' = 'CAT'))
+ qtde_cidsec$evitavel <- ifelse(qtde_cidsec[,1] %in% lista_cidevitavel[,1], 'Evitável', 'Não evitável')
+
+ evitavel <- aggregate(Freq ~ evitavel, data = qtde_cidsec, FUN = sum)
+ 
+texto <- paste0(evitavel[1,2], ' (', round(evitavel[1,2]*100/nrow(dados_relatorio),1),'%)' )
+summaryBox("Óbitos por causas evitáveis", texto, width = NULL,  style = 'info') 
+
+```
+
+<br>
+
+#### Lista de Cid Secundário
+
+```{r cid_sec_tab,} 
+tabela <- arrange(qtde_cidsec, desc(Freq))
+tabela <- tabela[,c(1,3,2)]
+names(tabela) <- c('Código', 'Descrição', 'Qtde')
+
+knitr::kable(tabela)   %>%
+kable_styling(bootstrap_options = c('hover', 'striped')  )  %>%
+  scroll_box(width = "100%", height = "300px")
+
+```
+
+</div> 
+
+</div> <!-- end 2 colunas -->

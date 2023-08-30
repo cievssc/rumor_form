@@ -1,0 +1,491 @@
+---
+title: "Relatório Operacional:<br>Mortalidade Infantil."
+output:
+ html_document:
+  theme:
+   version: 4 
+   bootswatch: cerulean
+params:
+  data: !r NA
+  municipiopoly: !r NA
+  cid10: !r NA
+  periodo: !r NA
+---
+
+
+```{r setup, include=FALSE}
+# determine if running in Shiny or not
+ is_in_shiny <- if(is.null(shiny::getDefaultReactiveDomain())) FALSE else TRUE
+ if (is_in_shiny == TRUE) shiny::incProgress(amount = 20, message = "Preparando")
+ knitr::opts_chunk$set(echo = F, warning = FALSE, include = T,dev = c('svg'))
+ library('summaryBox')
+ library('kableExtra')
+ library('ggplot2')
+
+ theme_set(theme_minimal())
+
+```
+
+```{r preparacao, include=FALSE}
+ municipio_sf <- sf::st_as_sf(params$municipiopoly)
+ #cid_evitavel <- params$cid_evitavel
+ #
+ dados_relatorio <- params$data
+ dias <- seq(params$periodo[2]-27,params$periodo[2], 'day' )
+ periodo <- data.frame(dias,
+            semana = cut(dias, breaks = '7 days', 
+                label = c('Semana 3', 'Semana 2', 'Semana 1', "Semana 0"))
+                )
+ dados_relatorio <- subset(dados_relatorio, dat_obito %in% dias)
+ dados_relatorio <- left_join(dados_relatorio, periodo, by = c('dat_obito' = 'dias'))
+  
+ mapa_vazio <- 
+ ggplot(municipio_sf) +
+ geom_sf(fill = NA) +
+ theme(legend.position = 'bottom', axis.text.x = element_blank(), axis.text.y = element_blank(),
+       axis.ticks.x=element_blank(), axis.ticks.y=element_blank(), panel.grid = element_blank())
+ 
+```
+
+<br>
+
+<span style = "font-size: 20pt;"> Período de análise: `r max(dias) - 6` à `r max(dias)` </span>
+
+
+<div class = "row">
+<div class = "col-md-4">
+```{r box_0}
+dadoi <- table(dados_relatorio$semana)
+dadoii <- round((dadoi[4]/dadoi[3] - 1)*100,2)
+if(is.nan(dadoii)){dadoii <- 0}
+if(dadoii > 0){argumento <- c('fas fa-arrow-up', 'info')}else{argumento <- c('fas fa-arrow-down', 'danger')}
+if(dadoii == 0){argumento <- c('fas fa-xmark', 'info')}
+summaryBox("Óbitos (Semana 0)", paste0(dadoi[4], ' (',dadoii,'%)'), width = NULL, icon = argumento[1], style = argumento[2])
+
+dadoii <- round((dadoi[3]/dadoi[2] - 1)*100,2)
+if(is.nan(dadoii)){dadoii <- 0}
+if(dadoii > 0){argumento <- c('fas fa-arrow-up', 'info')}else{argumento <- c('fas fa-arrow-down', 'danger')}
+if(dadoii == 0){argumento <- c('fas fa-xmark', 'info')}
+
+summaryBox("Óbitos (Semana 1)", paste0(dadoi[3], ' (',dadoii,'%)'), width = NULL, icon = argumento[1], style = argumento[2])
+
+dadoii <- round((dadoi[2]/dadoi[1] - 1)*100,2)
+if(is.nan(dadoii)){dadoii <- 0}
+if(dadoii > 0){argumento <- c('fas fa-arrow-up', 'info')}else{argumento <- c('fas fa-arrow-down', 'danger')}
+if(dadoii == 0){argumento <- c('fas fa-xmark', 'info')}
+summaryBox("Óbitos (Semana 2)", paste0(dadoi[2], ' (',dadoii,'%)'), width = NULL, icon = argumento[1], style = argumento[2])
+
+summaryBox("Óbitos (Semana 3)", paste0(dadoi[1]), width = NULL, icon = 'fas fa-comments', style = 'primary')
+
+```
+
+
+
+</div>
+
+<div class = "col-md-8">
+```{r serie_dados, }
+
+ #série temporal
+ dadoi <- as.data.frame(dadoi)
+ if(max(dadoi[,2]) %% 2 == 0){escala <- 0:(max(dadoi[,2]))}
+ if(max(dadoi[,2]) %% 2 == 1){escala <- 0:(max(dadoi[,2])+1)}
+ dadoi[dadoi$Freq == 0, 'Freq'] <- NA
+ 
+ ggplot(dadoi, aes(x = Var1, y = Freq)) +
+ geom_col(fill = '#269CEA') +
+ theme(legend.position = 'bottom') + 
+ scale_y_continuous(limits = c(min(escala), max(escala)),
+                    breaks = escala) +
+ geom_text(aes(label = Freq, y = Freq + .1),position = position_dodge(),hjust = 0, vjust = 0) +
+ xlab('') + ylab('Óbitos') +
+ labs(title = 'Série óbito')
+
+```
+
+
+</div>
+</div>
+
+<br>
+
+
+## Análise comparativa das últimas 2 semanas.
+
+
+<div class = "row">
+<div class = "col-md-6" style = "border-right: 1px solid black;">
+### Semana<br> anterior
+
+```{r mapa_1, }
+ if(nrow(dados_relatorio[dados_relatorio$semana == 'Semana 1',]) == 0){mapa_vazio  +
+ labs(title = 'Mapa óbito\n(local)')}else{
+ qtde_obito <- with(dados_relatorio[dados_relatorio$semana == 'Semana 1',], as.data.frame(table(municipio)))
+ quantis <- quantile(c(min(qtde_obito[,2]), max(qtde_obito[,2]))) %>% ceiling
+ if(any(duplicated(quantis))){
+    label <- paste0(quantis[1],'-',quantis[5])
+    qtde_obito$faixa <- as.factor(label)
+    }else{
+ label <- NULL
+ for(i in 1:4){
+     label[i] <- paste0(quantis[i],'-',quantis[i+1]-1)
+     if(i == 4){label[i] <- paste0(quantis[i],'-',quantis[i+1])}}
+ 
+ qtde_obito$faixa <- cut(qtde_obito[,2], breaks = quantile(c(min(qtde_obito[,2]), max(qtde_obito[,2]))), 
+                         include.lowest = T, labels = label)
+         }
+                          
+ mapa_obito <- left_join(municipio_sf, qtde_obito, by = c('Municipio' = 'municipio'))
+
+ ggplot(mapa_obito) +
+ geom_sf(aes(fill = faixa)) +
+ scale_fill_manual(values = c('#bdd7e7','#6baed6','#3182bd','#08519c'),
+                   na.translate = F, name = 'Quantidade de\nÓbitos') +
+ theme(legend.position = 'bottom', axis.text.x = element_blank(), axis.text.y = element_blank(),
+       axis.ticks.x=element_blank(), axis.ticks.y=element_blank(), panel.grid = element_blank()) +
+ labs(title = 'Mapa óbito\n(local)')
+ }
+```
+
+</div>
+
+<div class = "col-md-6">
+### Semana<br> atual
+
+```{r mapa_2, }
+ if(nrow(dados_relatorio[dados_relatorio$semana == 'Semana 0',]) == 0){mapa_vazio +
+ labs(title = 'Mapa óbito\n(local)')}else{
+ qtde_obito <- with(dados_relatorio[dados_relatorio$semana == 'Semana 0',], as.data.frame(table(municipio)))
+ quantis <- quantile(c(min(qtde_obito[,2]), max(qtde_obito[,2]))) %>% ceiling
+ if(any(duplicated(quantis))){
+    label <- paste0(quantis[1],'-',quantis[5])
+    qtde_obito$faixa <- as.factor(label)
+    }else{
+ label <- NULL
+ for(i in 1:4){
+     label[i] <- paste0(quantis[i],'-',quantis[i+1]-1)
+     if(i == 4){label[i] <- paste0(quantis[i],'-',quantis[i+1])}}
+ 
+ qtde_obito$faixa <- cut(qtde_obito[,2], breaks = quantile(c(min(qtde_obito[,2]), max(qtde_obito[,2]))), 
+                         include.lowest = T, labels = label)
+         }
+                          
+ mapa_obito <- left_join(municipio_sf, qtde_obito, by = c('Municipio' = 'municipio'))
+
+ ggplot(mapa_obito) +
+ geom_sf(aes(fill = faixa)) +
+ scale_fill_manual(values = c('#bdd7e7','#6baed6','#3182bd','#08519c'),
+                   na.translate = F, name = 'Quantidade de\nÓbitos') +
+ theme(legend.position = 'bottom', axis.text.x = element_blank(), axis.text.y = element_blank(),
+       axis.ticks.x=element_blank(), axis.ticks.y=element_blank(), panel.grid = element_blank()) +
+ labs(title = 'Mapa óbito\n(local)')
+ }
+```
+
+</div>
+</div>
+
+<br>
+
+
+<div class = "row">
+<div class = "col-md-6" style = "border-right: 1px solid black;">
+### Semana<br> anterior
+
+```{r mapa_3, }
+ if(nrow(dados_relatorio[dados_relatorio$semana == 'Semana 1',]) == 0){mapa_vazio  +
+ labs(title = 'Mapa óbito\n(residência)')}else{
+ qtde_obito <- with(dados_relatorio[dados_relatorio$semana == 'Semana 1',], as.data.frame(table(municipio_responsavel)))
+ quantis <- quantile(c(min(qtde_obito[,2]), max(qtde_obito[,2]))) %>% ceiling
+ if(any(duplicated(quantis))){
+    label <- paste0(quantis[1],'-',quantis[5])
+    qtde_obito$faixa <- as.factor(label)
+    }else{
+ label <- NULL
+ for(i in 1:4){
+     label[i] <- paste0(quantis[i],'-',quantis[i+1]-1)
+     if(i == 4){label[i] <- paste0(quantis[i],'-',quantis[i+1])}}
+ 
+ qtde_obito$faixa <- cut(qtde_obito[,2], breaks = quantile(c(min(qtde_obito[,2]), max(qtde_obito[,2]))), 
+                         include.lowest = T, labels = label)
+         }
+                          
+ mapa_obito <- left_join(municipio_sf, qtde_obito, by = c('Municipio' = 'municipio_responsavel'))
+
+ ggplot(mapa_obito) +
+ geom_sf(aes(fill = faixa)) +
+ scale_fill_manual(values = c('#bdd7e7','#6baed6','#3182bd','#08519c'),
+                   na.translate = F, name = 'Quantidade de\nÓbitos') +
+ theme(legend.position = 'bottom', axis.text.x = element_blank(), axis.text.y = element_blank(),
+       axis.ticks.x=element_blank(), axis.ticks.y=element_blank(), panel.grid = element_blank()) +
+ labs(title = 'Mapa óbito\n(residência)')
+   }
+```
+
+</div>
+
+<div class = "col-md-6">
+### Semana<br> atual
+
+```{r mapa_4, }
+ if(nrow(dados_relatorio[dados_relatorio$semana == 'Semana 0',]) == 0){mapa_vazio +
+ labs(title = 'Mapa óbito\n(residência)')}else{
+ qtde_obito <- with(dados_relatorio[dados_relatorio$semana == 'Semana 0',], as.data.frame(table(municipio_responsavel)))
+ quantis <- quantile(c(min(qtde_obito[,2]), max(qtde_obito[,2]))) %>% ceiling
+ if(any(duplicated(quantis))){
+    label <- paste0(quantis[1],'-',quantis[5])
+    qtde_obito$faixa <- as.factor(label)
+    }else{
+ label <- NULL
+ for(i in 1:4){
+     label[i] <- paste0(quantis[i],'-',quantis[i+1]-1)
+     if(i == 4){label[i] <- paste0(quantis[i],'-',quantis[i+1])}}
+ 
+ qtde_obito$faixa <- cut(qtde_obito[,2], breaks = quantile(c(min(qtde_obito[,2]), max(qtde_obito[,2]))), 
+                         include.lowest = T, labels = label)
+         }
+                          
+ mapa_obito <- left_join(municipio_sf, qtde_obito, by = c('Municipio' = 'municipio_responsavel'))
+
+ ggplot(mapa_obito) +
+ geom_sf(aes(fill = faixa)) +
+ scale_fill_manual(values = c('#bdd7e7','#6baed6','#3182bd','#08519c'),
+                   na.translate = F, name = 'Quantidade de\nÓbitos') +
+ theme(legend.position = 'bottom', axis.text.x = element_blank(), axis.text.y = element_blank(),
+       axis.ticks.x=element_blank(), axis.ticks.y=element_blank(), panel.grid = element_blank()) +
+ labs(title = 'Mapa óbito\n(residência)')
+  }
+```
+
+</div>
+</div>
+
+<br>
+
+<div class = "row">
+<div class = "col-md-6" style = "border-right: 1px solid black;">
+
+### Faixa etária (infante)
+
+```{r idade, }
+ dados_relatorio$idade_graf <-  cut(floor(dados_relatorio$idade), breaks = c(0,1,30,365, Inf), 
+                        labels = c('Menos 1 dia', 'Até 30 dias','Até 1 ano','> 1 ano'))
+ #criaçao de variável apenas para a análise da ultima quinzena
+ dados_relatorio$quinzena <- with(dados_relatorio, ifelse(semana == 'Semana 1', 'Semana Anterior',
+                              ifelse(semana == 'Semana 0', 'Semana Atual',NA))) %>%
+                              factor(., levels = c('Semana Anterior', "Semana Atual"))
+
+ dadoi <- with(dados_relatorio[!is.na(dados_relatorio$quinzena),], as.data.frame(table(idade_graf)))
+ if(max(dadoi[,2]) %% 2 == 0){escala <- 0:(max(dadoi[,2]))}
+ if(max(dadoi[,2]) %% 2 == 1){escala <- 0:(max(dadoi[,2])+1)}
+
+
+ tabela <- with(dados_relatorio, as.data.frame(table(idade_graf, quinzena))) 
+ tabela[tabela$Freq == 0,3] <- NA           
+
+ggplot(tabela, aes(x = idade_graf, y = Freq)) + 
+geom_col(aes(fill = quinzena), alpha = .7) +
+geom_text(aes(label = Freq),position = position_stack(vjust = .5)) + 
+ coord_flip() +
+ xlab('Faixa de\nidade') + ylab('Quantidade') +
+ scale_fill_manual(values = c('#184ED3', '#269CEA'), guide_legend(title = '')) +
+ scale_y_continuous(limits = c(min(escala), max(escala)),
+                    breaks = escala)   +
+ theme(legend.position = 'bottom')
+
+```
+
+</div>
+
+<div class = "col-md-6">
+### Sexo (infante)
+
+```{r sexo, }
+  dadoi <- with(dados_relatorio[!is.na(dados_relatorio$quinzena),], as.data.frame(table(sexo)))
+ if(nrow(dadoi) == 0){dadoi <- data.frame('Var1' =NA, 'Freq' = 0)} 
+ if(max(dadoi[,2]) %% 2 == 0){escala <- 0:(max(dadoi[,2]))}
+ if(max(dadoi[,2]) %% 2 == 1){escala <- 0:(max(dadoi[,2])+1)}
+
+ tabela <- with(dados_relatorio, as.data.frame(table(sexo, quinzena))) 
+ tabela[tabela$Freq == 0,3] <- NA 
+ levels(tabela$sexo)  <- c('Masculino', 'Feminino')          
+
+ggplot(tabela, aes(x = sexo, y = Freq)) + 
+geom_col(aes(fill = quinzena), alpha = .7) +
+geom_text(aes(label = Freq),position = position_stack(vjust = .5)) + 
+ coord_flip() +
+ xlab('Sexo') + ylab('Quantidade')  +
+ scale_fill_manual(values = c('#184ED3', '#269CEA'), guide_legend(title = '')) +
+ scale_y_continuous(limits = c(min(escala), max(escala)),
+                    breaks = escala)   +
+ theme(legend.position = 'bottom')
+
+```
+
+</div>
+</div>
+
+<br>
+
+<div class = "row">
+<div class = "col-md-6" style = "border-right: 1px solid black;">
+
+### Escolaridade
+
+```{r escolaridade, }
+
+ tabela <- data.frame(escolaridade = factor(dados_relatorio$escolaridade, levels = c(1:7)), quinzena = dados_relatorio$quinzena)
+ tabela <- with(tabela, as.data.frame(table(escolaridade, quinzena)))
+ tabela$escolaridade <- factor(c('Sem escolaridade' ,'Fundamental I',
+                         'Fundamental II' , 'Ensino médio','Superior Incompleto', 'Superior Completo', 'Ignorado' ),
+                         levels = c('Sem escolaridade' ,'Fundamental I',
+                         'Fundamental II' , 'Ensino médio','Superior Incompleto', 'Superior Completo', 'Ignorado' ))
+
+ if(max(tabela$Freq) %% 2 == 0){escala <- 0:(max(tabela$Freq))}
+ if(max(tabela$Freq) %% 2 == 1){escala <- 0:(max(tabela$Freq)+1)}
+
+ tabela[tabela$Freq == 0,3] <- NA
+ 
+ ggplot(tabela, aes(x = escolaridade, y = Freq)) + 
+ geom_col(aes(fill = quinzena), alpha = .7) +
+ geom_text(aes(label = Freq),position = position_stack(vjust = .5)) + 
+ #geom_text(aes(label = Freq, group = quinzena ),position = position_dodge(),hjust = 1) + 
+ coord_flip() +
+ xlab('Escolaridade') + ylab('Quantidade') +
+ scale_fill_manual(values = c('#184ED3', '#269CEA'), guide_legend(title = '')) +
+ scale_y_continuous(limits = c(min(escala), max(escala)),
+                    breaks = escala)   +
+ theme(legend.position = 'bottom')
+```
+
+</div>
+
+<div class = "col-md-6">
+### Cor da pele (responsável)
+
+```{r  }
+
+ tabela <- data.frame(cor = factor(dados_relatorio$cor, levels = c(1:6)), quinzena = dados_relatorio$quinzena)
+ tabela <- with(tabela, as.data.frame(table(cor, quinzena)))
+ tabela$cor <- factor(c('Branca' , 'Preta' , 'Amarela' , 'Parda' , 'Indígena', 'Ignorado'  ), 
+               levels = c('Branca' , 'Preta' , 'Amarela' , 'Parda' , 'Indígena','Ignorado'  ))
+
+ if(max(tabela$Freq) %% 2 == 0){escala <- 0:(max(tabela$Freq))}
+ if(max(tabela$Freq) %% 2 == 1){escala <- 0:(max(tabela$Freq)+1)}
+
+ tabela[tabela$Freq == 0,3] <- NA
+ 
+ ggplot(tabela, aes(x = cor, y = Freq)) + 
+ geom_col(aes(fill = quinzena), alpha = .7) +
+ geom_text(aes(label = Freq),position = position_stack(vjust = .5)) + 
+ #geom_text(aes(label = Freq, group = quinzena ),position = position_dodge(),hjust = 1) + 
+ coord_flip() +
+ xlab('cor') + ylab('Quantidade') +
+ scale_fill_manual(values = c('#184ED3', '#269CEA'), guide_legend(title = '')) +
+ scale_y_continuous(limits = c(min(escala), max(escala)),
+                    breaks = escala)   +
+ theme(legend.position = 'bottom')
+ 
+   
+```
+
+</div>
+</div>
+
+<br>
+
+<div class = "row">
+
+<div class = "col-md-6" style = "border-right: 1px solid black;">
+### Responsável
+
+```{r responsavel, }
+ tabela <- with(dados_relatorio, as.data.frame(table(responsavel, quinzena)))
+ 
+ if(max(tabela$Freq) %% 2 == 0){escala <- 0:(max(tabela$Freq))}
+ if(max(tabela$Freq) %% 2 == 1){escala <- 0:(max(tabela$Freq)+1)}
+
+ tabela[tabela$Freq == 0,3] <- NA
+
+ ggplot(tabela, aes(x = responsavel, y = Freq)) + 
+ geom_col(aes(fill = quinzena), alpha = .7) +
+ geom_text(aes(label = Freq),position = position_stack(vjust = .5)) + 
+# coord_flip() +
+ xlab('Responsável') + ylab('Quantidade') +
+ scale_fill_manual(values = c('#184ED3', '#269CEA'), guide_legend(title = '')) +
+ scale_y_continuous(limits = c(min(escala), max(escala)),
+                    breaks = escala)   +
+ theme(legend.position = 'bottom')
+  
+```  
+
+</div>
+
+<div class = "col-md-6" >
+
+### Faixa etária (responsável)
+
+```{r idade_resp, }
+ idade_graf <- data.frame(idade_graf = cut(floor(dados_relatorio$idade_responsavel), breaks = c(-1,18,seq(30,70, 10), Inf), 
+                        labels = c('0-17','18-29','30-39',
+                                   '40-49','50-59','60-69','>70'),right = F ),
+                          quinzena = dados_relatorio$quinzena
+                                   )
+
+
+
+ dadoi <-  as.data.frame(table(idade_graf[,1]))
+ if(max(dadoi[,2]) %% 2 == 0){escala <- 0:(max(dadoi[,2]))}
+ if(max(dadoi[,2]) %% 2 == 1){escala <- 0:(max(dadoi[,2])+1)}
+
+
+ tabela <- with(idade_graf, as.data.frame(table(idade_graf, quinzena))) 
+ tabela[tabela$Freq == 0,3] <- NA           
+
+ggplot(tabela, aes(x = idade_graf, y = Freq)) + 
+geom_col(aes(fill = quinzena), alpha = .7) +
+geom_text(aes(label = Freq),position = position_stack(vjust = .5)) + 
+ coord_flip() +
+ xlab('Faixa de\nidade') + ylab('Quantidade') +
+ scale_fill_manual(values = c('#184ED3', '#269CEA'), guide_legend(title = '')) +
+ scale_y_continuous(limits = c(min(escala), max(escala)),
+                    breaks = escala)   +
+ theme(legend.position = 'bottom')
+
+```
+
+</div>
+
+</div>
+
+
+<br>
+
+
+<div class = "row">
+
+<div class = "col-md-6">
+```{r, }
+ texto <- dados_relatorio[dados_relatorio$quinzena == 'Semana Anterior',]
+ texto <- with(texto,paste0(table(obt_evitavel)[1], ' (', round(table(obt_evitavel)[1]*100/nrow(texto),1),'%)' ))
+ summaryBox("Óbitos evitáveis\n(semana anterior)", texto, width  = NULL,  style = 'info')
+
+```
+
+</div>
+
+<div class = "col-md-6" >
+```{r, }
+ texto <- dados_relatorio[dados_relatorio$quinzena == 'Semana Atual',]
+ texto <- with(texto,paste0(table(obt_evitavel)[1], ' (', round(table(obt_evitavel)[1]*100/nrow(texto),1),'%)' ))
+ summaryBox("Óbitos evitáveis\n(semana atual)", texto, width  = NULL,  style = 'info')
+
+```
+
+</div>
+
+<br>
+
+</div>
+ 
+

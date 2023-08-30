@@ -1,0 +1,3 @@
+/*editando o dygraph*/
+.dygraph-legend > span { display: none; }
+.dygraph-legend > span.highlight { display: inline; }
