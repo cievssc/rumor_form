@@ -21,14 +21,13 @@
     shinyjs::hidden(    
          tags$div(id = 'teste',
    navbarPage(#theme = shinythemes::shinytheme('cerulean'),
-               theme = bslib::bs_theme(version = 4, bootswatch = 'cerulean'),
+               theme = bslib::bs_theme(version = 4, bootswatch = 'default'),
         id = "navbar",
         title = div(img(src = './images/cievs_nacional.png', style="
                                padding-right:10px;
                                padding-bottom:10px",
                         height = 62)),
-                        #theme = "journal",
-                      #  windowTitle="Gente Catarina",
+                        
                       
         
          source('./ui/rumor_form.R', local = T, encoding = 'UTF-8')$value, #tabpanel educação

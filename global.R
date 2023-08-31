@@ -20,14 +20,10 @@
  library('data.table')
  library('RColorBrewer')
  #library('scales')
- library('raster')
- #library('xts')
- #library('dygraphs')
- #library('highcharter')
  library('ggplot2')
  library('formattable') #tabelas personalizadas
  
- library('auth0')
+ #library('auth0')
  #a0_1 <- auth0::auth0_info()
 
  #carregand dados
@@ -56,14 +52,7 @@ source('./www/highcharts/generalhigh.R')
  #carregando funçes dashboard
  #source('./funcoes_dashboard.R')
  
- conn <- function(){DBI::dbConnect(RPostgres::Postgres(), , host = '10.111.7.180', port = 5432, user = 'developer',
-                       password = 'Q1w2e3r4$', dbname = 'desenvolvimento',
-                       options="-c search_path=form_gentecatarina")} 
- 
- #conn <- function(){DBI::dbConnect(RPostgres::Postgres(), host = Sys.getenv('BD_HOST'), port = vetor_a[[1]], user = Sys.getenv('BD_USER'),
-  #                     password = Sys.getenv('BD_PASS'), dbname = Sys.getenv('BD_DB'),
-   #                    options=vetor_a[[2]])}
-   
- 
+ conn <- function(){DBI::dbConnect(RPostgres::Postgres(),  host = '172.22.34.56', port = 5432, user = 'dimitri',
+                     password = 'cievs666', dbname = 'rumores')} 
  
  
