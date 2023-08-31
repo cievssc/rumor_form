@@ -6,6 +6,9 @@
  #vetor área técnica
  load('area_tecnica.RData')
 
+ #arquivos mapa
+ load('centroide.RData')
+
  #fonte notícia
  fonte <- c("EIOS","OUTROS","PROMED","Outbreak News", 'RENAVEH',
             "Rumor Verídico", "OPAS/OMS", "IHR", 'CIEVS Nacional',

@@ -28,20 +28,12 @@
 
  #carregand dados
  load('mapa_macro.RData')
- load('municipio_prog.RData')
  load('municipios_br.RData')
  load('pops_sc.RData')
  load('estab_saude.RData')
- load('cid10.RData')
- load('cid_evitavel.RData')
- load('lista_cidevitavel.RData')
- load('lista_escolas.RData')
- load('cbo_list.RData')
- load('categoria_falta.RData')
  load('regioes_saude.RData')
  load('tabs.RData')
  
- municipio_prog$cod6 <- floor(municipio_prog$codigo/10)
  
  source('./treating_data.R', local = T, encoding = 'UTF-8')
  #options(warn = -1)
