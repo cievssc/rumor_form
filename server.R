@@ -1,15 +1,28 @@
- #app gente catarina (28-dez-21, 22:38h)
+ #app rumor form (31-ago-2023, 14:16h)
  #auth0_server(function(input, output, session) {
  function(input, output, session) {
-    # aparecer o formulário inicial de senha
-    check_user <- NULL
+
+ check_user <- reactiveVal(0)
+
+  # aparecer o formulário inicial de senha
  observeEvent(input$botao_acesso, {
-  #saveData(formData())
-  if(nrow(check_user()) == 1){
-  #shinyjs::reset("form")
-  shinyjs::hide("form")
-  shinyjs::show("teste")}else{
+  query <- DBI::sqlInterpolate(conn(), 
+            paste0("SELECT * FROM lista_usuario 
+            WHERE login = ?code1 AND senha = ?code2"),
+            code1 = input$login,
+            code2 = digest::digest(as.character(input$email))
+                        )
+  dadoi <- DBI::dbGetQuery(conn(),query)
+ 
   
+  if(nrow(dadoi) == 1){
+  shinyjs::reset("form")
+  shinyjs::hide("form")
+  shinyjs::show("teste")
+  check_user(dadoi)
+  }else{
+  
+  shinyjs::reset("form")
   showModal(modalDialog(
         title = NULL,
         "Usuário ou senha incorreto",
@@ -17,6 +30,12 @@
         footer = NULL
       ))
   }
- })
- }
+ }) #end observeEvent
+
+
+ #---------------------------------------------------------------------#
+ #rumor_form
+ source('./server/server_rumorform.R', local = T, encoding = 'UTF-8')
+
+ } #end server function
  #}, info = a0_1) #end server function

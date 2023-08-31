@@ -10,9 +10,9 @@
  load('centroide.RData')
 
  #fonte notícia
- fonte <- c("EIOS","OUTROS","PROMED","Outbreak News", 'RENAVEH',
+ fonte <- c("EIOS","PROMED","Outbreak News", 'RENAVEH',
             "Rumor Verídico", "OPAS/OMS", "IHR", 'CIEVS Nacional',
-            'Clipping Comunicação', 'RSSOWL','Twitter')
+            'Clipping Comunicação', 'RSSOWL','Twitter',"OUTROS")
 
  
  #vetor de série / ano escolar

@@ -5,13 +5,14 @@
   tags$div(class = 'container',
     tags$form(
     h4('Rumor'),
+    br(),
     fluidRow(
      
       column(4,
       dateInput('rumor_data', 'Data:', format = 'dd-mm-yyyy', language = 'pt-BR')
      ),
       column(4,
-      checkboxInput('rumor_checkdata', "Atualização data?"),
+      checkboxInput('rumor_checkdata', "Atualização data?", value = F),
       uiOutput('rumor_ui_data_atual')),
       column(4,
       uiOutput('rumor_se'))
@@ -44,6 +45,8 @@
        )
 
       ), #endRow
+
+      verbatimTextOutput('teste'),
     hr(),
    
     fluidRow(
