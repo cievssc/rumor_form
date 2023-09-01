@@ -46,20 +46,20 @@
 
       ), #endRow
 
-      verbatimTextOutput('teste'),
     hr(),
    
     fluidRow(
      
      column(4,
-      textInput('rumor_casos', 'Nº casos confirmados:'),
+      textInput('rumor_casos', 'Total de casos:'),
+      textInput('rumor_casos_conf', 'Nº casos confirmados:')
+      ), #end column
+     column(4,
+      textInput('rumor_suspeitos', 'Nº casos suspeitos:'),
       textInput('rumor_obitos', 'Nº óbitos:')
       ), #end column
      column(4,
-      textInput('rumor_suspeitos', 'Nº casos suspeitos:')
-      ), #end column
-     column(4,
-      textInput('rumor_casos', 'Nº casos descartados:')
+      textInput('rumor_descartados', 'Nº casos descartados:')
       ) #end column
       
       ), #endrow

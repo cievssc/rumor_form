@@ -30,9 +30,9 @@
                         
                       
         
-         source('./ui/rumor_form.R', local = T, encoding = 'UTF-8')$value, #tabpanel educação
-         
-        
+         source('./ui/rumor_form.R', local = T, encoding = 'UTF-8')$value, #tabpanel rumor evento
+         source('./ui/list_form.R', local = T, encoding = 'UTF-8')$value, #tabpanel lista eventos
+                 
          
         tabPanel('Sair') 
          
