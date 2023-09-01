@@ -69,21 +69,25 @@ output$rumor_municipio_ui <- renderUI({
        # municipio(input$rumor_municipio)
     }else{
         NULL
-        #municipio(NA)
         }
 })
 
 observe(
     if(is.null(input$rumor_estado)){NULL}else {
        
- if(input$rumor_pais == 'Brasil' & input$rumor_estado != 'Nacional'){
    dadoi <- municipios_br[municipios_br$uf == input$rumor_estado,] 
-  updateSelectInput(session, 'rumor_municipio', 'Município', choices = c('Todos',dadoi[,'municipio']), selected = "Todos")
-  municipio(input$rumor_municipio)
- }
+   updateSelectInput(session, 'rumor_municipio', 'Município', choices = c('Todos',dadoi[,'municipio']), selected = "Todos")
+  # municipio(input$rumor_municipio)
     }
 )
 
+observe(
+  if(is.null(input$rumor_estado)){NULL}else {
+    if(input$rumor_pais == 'Brasil' & input$rumor_estado != 'Nacional'){
+    municipio(input$rumor_municipio)
+  }else{municipio(NA)}
+  }  
+)
 
 
    #criando o df dos dados inseridos

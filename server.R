@@ -37,5 +37,8 @@
  #rumor_form
  source('./server/server_rumorform.R', local = T, encoding = 'UTF-8')
 
+ #rumor_consult
+ source('./server/server_consult.R', local = T, encoding = 'UTF-8')
+
  } #end server function
  #}, info = a0_1) #end server function

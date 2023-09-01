@@ -1,29 +1,25 @@
- tabPanel(title = 'Consultar formulário',
+ tabPanel(title = 'Consultar rumor',
  
+ tags$div(id = 'consulta', style = 'padding = 20px;',
  fluidRow(
           column(3,
-           selectInput('consult_formulario', 'Selecionar formulário:',
-           choices = list('Saúde' = c('Longevidade' = 1, 'Mortalidade Infantil' = 2), 'Educação' = c('Infrequência Escolar' = 3)),
-           selected = 1, multiple = F),
+           dateRangeInput("consult_periodo", label = "Período: ",  format = ' dd/mm/yyyy'),
            actionButton('consult_consultar','Consultar')
-           ),
-           column(3,
-           dateRangeInput("consult_periodo", label = "Período: ", min = (Sys.Date()-180), format = ' dd/mm/yyyy')
            )
            ), #endrow
-           br(),
+           hr(),
         
-        h3('Relação dos formulários'),
+        h3('Relação de rumores'),
         br(), 
         DT::dataTableOutput("consult_listaforms"),
         
         br(),
-        actionButton('consult_editar','Editar'),
+        #actionButton('consult_editar','Editar'),
         br(),
         actionButton('consult_apagar','Apagar'),
-        br()
-        #,
-        #downloadButton('print_form','Exportar')
+        br(),
+        downloadButton('consult_expo','Exportar')
+        )
      ) #endtabPanel consult 
      
   
