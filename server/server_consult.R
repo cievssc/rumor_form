@@ -25,6 +25,7 @@
 
                       observeEvent(input$consult_consultar,{
                                 formulario <- consult_data()
+                                formulario <- formulario[,c(2,19,20,1,3:18)]
                                   names(formulario) <- c('id', 'Responsável','dt_envio','Semana\nEpidemiológica', 'Dt.Notícia','Dt.Atualização','Descrição','Link',
                                   'Doença/Agravo','Notif. Imediata?','Área Técnica','Fonte','País','UF','Município',
                                   'Total Casos','Casos confirmados','Suspeitos','Descartado','Óbito')
