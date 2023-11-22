@@ -85,7 +85,7 @@
       paste("rumores-", Sys.Date(), ".csv", sep="")
     },
     content = function(file) {
-      write.csv(lista_formulario(), file)
+      write.table(lista_formulario(), file, row.names = F, sep = ';',fileEncoding = 'UTF-8')
     }
 )
   
