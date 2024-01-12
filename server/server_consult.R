@@ -12,7 +12,7 @@
                                    )
                                    formulario <- DBI::dbGetQuery(conn(), query)
                                   
-                                 formulario$dia <- with(formulario, ifelse(!is.na(data_atualizacao), data_atualizacao, data_noticia))
+                                 formulario$dia <- with(formulario, data_noticia)
                                  formulario <- subset(formulario, 
                                                       dia %in% seq(as.Date(input$consult_periodo[1]),as.Date(input$consult_periodo[2]),'day'))
                                  formulario$dia <- NULL
@@ -25,8 +25,8 @@
 
                       observeEvent(input$consult_consultar,{
                                 formulario <- consult_data()
-                                formulario <- formulario[,c(2,19,20,1,3:18)]
-                                  names(formulario) <- c('id', 'Responsável','dt_envio','Semana\nEpidemiológica', 'Dt.Notícia','Dt.Atualização','Descrição','Link',
+                                formulario <- formulario[,c(2,19,20,1,3,5:18)]
+                                  names(formulario) <- c('id', 'Responsável','dt_envio','Semana\nEpidemiológica', 'Dt.Notícia','Descrição','Link',
                                   'Doença/Agravo','Notif. Imediata?','Área Técnica','Fonte','País','UF','Município',
                                   'Total Casos','Casos confirmados','Suspeitos','Descartado','Óbito')
                                   
