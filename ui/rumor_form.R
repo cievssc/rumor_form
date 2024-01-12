@@ -11,10 +11,7 @@
       column(4,
       dateInput('rumor_data', 'Data:', format = 'dd-mm-yyyy', language = 'pt-BR')
      ),
-      column(4,
-      checkboxInput('rumor_checkdata', "Atualização data?", value = F),
-      uiOutput('rumor_ui_data_atual')),
-      column(4,
+      column(4, offset = 4,
       uiOutput('rumor_se'))
      ), #endrow
 
@@ -66,12 +63,23 @@
     hr(),
     br(),
     fluidRow(
+      column(3,
+      checkboxInput("rumor_adicional", label = "Vinculado a outro rumor?", value = F)
+      ), 
+      column(4, offset = 4,
+      uiOutput('rumor_idpai')
+      )
+    ), #endRow
+      uiOutput('rumor_infopai'),
+    
+    hr(),
+    br(),
+    fluidRow(
     column(4, offset = 4,
     actionButton('rumor_enviar', 'Confirmar\npreenchimento', width  = '100%')
     )
      ), #endrow
      br()
-     
      ) #end form
      )#end divcontainer
      ) #endtabPanel rumoruência

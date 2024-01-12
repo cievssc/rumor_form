@@ -3,38 +3,12 @@
  #---------------------------------------------------------
  #-------------ui outputs----------------------------------
 
-#data atualzada
- output$rumor_ui_data_atual <- renderUI({
-    if(isTRUE(input$rumor_checkdata)){
-      dateInput('rumor_data_atual', 'Data:', format = 'dd-mm-yyyy', language = 'pt-BR')   
-    }else{
-        NULL
-    }
- }) #end renderui
 
 #semana epidemiológica
 semana_epid <- reactiveVal()
 output$rumor_se <- renderUI({
-    if(!isTRUE(input$rumor_checkdata)){
         dadoi <- lubridate::epiweek(input$rumor_data)
-    }else{
-        dadoi <- lubridate::epiweek(input$rumor_data_atual)
-    }
-    semana_epid(dadoi)
-    tagList(
-        h4(paste('Semana Epidemiológica:')),
-        h5(dadoi)
-    )
-}) #end renderui
-
-#semana epidemiológica
-semana_epid <- reactiveVal()
-output$rumor_se <- renderUI({
-    if(!isTRUE(input$rumor_checkdata)){
-        dadoi <- lubridate::epiweek(input$rumor_data)
-    }else{
-        dadoi <- lubridate::epiweek(input$rumor_data_atual)
-    }
+           
     semana_epid(dadoi)
     tagList(
         h4(paste('Semana Epidemiológica:')),
@@ -89,12 +63,81 @@ observe(
   }  
 )
 
+ #Campo para vinculação do rumor (add 11-jan-24, 14:20h)
+ output$rumor_infopai <- renderUI({
+            if(!isTRUE(input$rumor_adicional)){NULL}else{
+             list(
+           fluidRow(     
+           column(6,
+           dateRangeInput("rumor_periodo", label = "Período: ",  format = ' dd/mm/yyyy'),
+           actionButton('rumor_consultar','Consultar')
+           )
+           ), #endrow
+           hr(),
+           fluidRow(
+            column(12,
+           h4('Relação de rumores'),
+           br(), 
+           DT::dataTableOutput("rumor_listaforms")
+            ))
+  ) }
+ })
 
+ #obtendo so dados
+  rumor_data <- eventReactive(c(input$rumor_consultar), {
+                                Sys.sleep(.3)
+                                usuario = check_user()[,'usuario']
+                               
+                                  query <- DBI::sqlInterpolate(conn(), 
+                                   paste0("SELECT * FROM rumores_evento WHERE id_pai is null") 
+                                   ) #selecionando somente rumores que não estão ligados a nenhum outro
+                                   formulario <- DBI::dbGetQuery(conn(), query)
+                                  
+                                 formulario$dia <- with(formulario,  data_noticia)
+                                 formulario <- subset(formulario, 
+                                                      dia %in% seq(as.Date(input$rumor_periodo[1]),as.Date(input$rumor_periodo[2]),'day'))
+                                 formulario$dia <- NULL
+                                 on.exit(DBI::dbDisconnect(conn()))
+                                 formulario  
+                                })
+ 
+  
+  rumor_formulario <- reactiveVal(NULL)
+
+                      observeEvent(input$rumor_consultar,{
+                                formulario <- rumor_data()
+                                formulario <- formulario[,c(2,19,20,1,3,5:7,9)]
+                                  names(formulario) <- c('id', 'Responsável','dt_envio','Semana\nEpidemiológica', 'Dt.Notícia','Descrição','Link',
+                                  'Doença/Agravo','Área Técnica')
+                                  
+                             if(is.null(consult_data())) return() 
+                                   
+                             rumor_formulario(formulario)
+                               })
+                                        
+  output$rumor_listaforms <-DT::renderDT(rumor_formulario(), selection = 'single', rownames = F)
+  
+  #selecionando o ip pai
+  rumor_rumorpai_id <- reactive({
+  if (is.null(input$rumor_listaforms_rows_selected)) return()
+    rumor_formulario()[input$rumor_listaforms_rows_selected, 'id']
+  })
+
+ #ilustrando o ip pai
+ output$rumor_idpai <- renderUI({
+       if(!isTRUE(input$rumor_adicional)){NULL}else{   
+    tagList(
+        h4(paste('ID selecionado:')),
+        h5(rumor_rumorpai_id())
+    )}
+}) #end renderui
+
+ #----------------------------------------------------------------------------------
    #criando o df dos dados inseridos
   rumor_dados_empilhados <- reactive({                                       
                                  data.frame('se' = semana_epid(),
                                             'data_noticia' = input$rumor_data,
-                                            'data_atualizacao' = if(isTRUE(input$rumor_checkdata)){input$rumor_data_atual}else{NA},
+                                            'data_atualizacao' = NA, #Este campo está sem utilidade (11-jan-24, 14:34h)
                                             'descricao' = input$rumor_infoadicional,
                                             'link' = input$rumor_link,
                                             'doenca' = input$rumor_doenca,
@@ -108,12 +151,13 @@ observe(
                                             'casos_confirmados' = input$rumor_casos_conf,
                                             'suspeito' = input$rumor_suspeitos,
                                             'descartado' = input$rumor_descartados,
-                                            'obito' = input$rumor_obitos
+                                            'obito' = input$rumor_obitos,
+                                            'id_pai' = if(!isTRUE(input$rumor_adicional)){NA}else{rumor_rumorpai_id()} #add em 11-jan-24 (16:26h)
 
                                            )
                                     })                   
    
-  #--------------------------------------------------------------------------
+ #--------------------------------------------------------------------------
  #modal confirmação
  #--------------------------------------------------------------------------
   
