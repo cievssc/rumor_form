@@ -33,6 +33,7 @@
         ),
        column(4,
        selectInput('rumor_area_tecnica', 'Área técnica:', choices = area_tecnica, selected = NA, multiple = F),
+       checkboxInput("rumor_enviar_area", label = "Enviar para área técnica?", value = F),
        selectInput('rumor_fonte', 'Fonte:', choices = fonte, selected = 'CIEVS Nacional', multiple = F)
        ), 
        column(4,

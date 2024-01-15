@@ -41,6 +41,9 @@
  #rumor_consult
  source('./server/server_consult.R', local = T, encoding = 'UTF-8')
 
+ #verifica_form
+ source('./server/server_verifica.R', local = T, encoding = 'UTF-8')
+
  #server_saida
  source('./server/server_saida.R', local = T, encoding = 'UTF-8')
 

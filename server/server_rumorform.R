@@ -1,9 +1,9 @@
  #server para a aba formulário (30-ago-2023, 17:06h)
-
+ 
  #---------------------------------------------------------
  #-------------ui outputs----------------------------------
 
-
+ output$teste <- renderPrint({input$navbar})
 #semana epidemiológica
 semana_epid <- reactiveVal()
 output$rumor_se <- renderUI({
@@ -152,8 +152,8 @@ observe(
                                             'suspeito' = input$rumor_suspeitos,
                                             'descartado' = input$rumor_descartados,
                                             'obito' = input$rumor_obitos,
-                                            'id_pai' = if(!isTRUE(input$rumor_adicional)){NA}else{rumor_rumorpai_id()} #add em 11-jan-24 (16:26h)
-
+                                            'id_pai' = if(!isTRUE(input$rumor_adicional)){NA}else{rumor_rumorpai_id()}, #add em 11-jan-24 (16:26h)
+                                            'verific_tecnica' = input$rumor_enviar_area 
                                            )
                                     })                   
    
