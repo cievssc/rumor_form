@@ -14,7 +14,7 @@
             )
 
         ), #endRow
-        
+        hr(),
         uiOutput('verific_opcoes')
         ) #end div verifica
      ) #endtabPanel verific 
