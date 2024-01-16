@@ -2,6 +2,7 @@
 
  tabPanel(title = 'Verificação de rumor',
  
+
  tags$div(id = 'verifica', class = 'container',
         fluidRow(
             column(6,
@@ -15,7 +16,15 @@
 
         ), #endRow
         hr(),
-        uiOutput('verific_opcoes')
+        uiOutput('verific_opcoes'),
+       
+    br(),
+    fluidRow(
+    column(4, offset = 4,
+    actionButton('verific_enviar', 'Confirmar\npreenchimento', width  = '100%')
+    )
+     ), #endrow
+     br()
         ) #end div verifica
      ) #endtabPanel verific 
      

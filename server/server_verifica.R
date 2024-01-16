@@ -2,9 +2,12 @@
  
 
   #lista de rumores a serem verificados
-  verific_rumores <- eventReactive(input$navbar == 'Verificação de rumor',{
+  verific_rumores <- eventReactive(c(input$navbar == 'Verificação de rumor',
+                                   input$verific_enviar),{
+                    lista_verificadas <- DBI::dbGetQuery(conn(), "SELECT id FROM rumores_verifica")
                      dadoi <- DBI::dbGetQuery(conn(), "SELECT id, data_noticia, descricao,
                                 area_tecnica FROM rumores_evento WHERE verific_tecnica = TRUE")
+                     dadoi <- dadoi[!(dadoi$id %in% lista_verificadas[,1]),] #mostrar somente rumores que não foram verificados ainda (16-jan-24, 16:34h)
                      dadoi
   })
 
@@ -66,23 +69,23 @@
                 fluidRow(
                     
                     column(4,
-                      selectInput('verific_disemina', label = 'Apresenta risco de disseminação nacional ou internacional?', 
+                      selectInput('verific_prob_dissemina', label = 'Apresenta risco de disseminação nacional ou internacional?', 
                       choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = 0), 
 
-                      selectInput('verific_alerta', label = 'Evento em alerta internacional ou ESPII, evento no marco do RSI iminente ingresso no país?', 
+                      selectInput('verific_prob_alerta', label = 'Evento em alerta internacional ou ESPII, evento no marco do RSI iminente ingresso no país?', 
                       choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = 0) 
                     ), #end column
 
                     column(4,
-                      selectInput('verific_inesperado', label = 'Trata-se de evento  inesperado ou desconhecido?', 
+                      selectInput('verific_prob_inesperado', label = 'Trata-se de evento  inesperado ou desconhecido?', 
                       choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = 0), 
 
-                      selectInput('verific_reintroducao', label = 'Representa a reintrodução de doença erradicada?', 
+                      selectInput('verific_prob_reintroducao', label = 'Representa a reintrodução de doença erradicada?', 
                       choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = 0) 
                     ), #end column
 
                     column(4,
-                      selectInput('verific_manejo', label = 'A localidade não tem capacidade de manejo do evento?', 
+                      selectInput('verific_prob_manejo', label = 'A localidade não tem capacidade de manejo do evento?', 
                       choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = 0)
                     ) #end column
                 )
@@ -100,7 +103,7 @@
                 fluidRow(                    
                     column(4, 
                     h5('Extensão Geográfica'),
-                      selectInput('verific_geog_disemina', label = 'O evento está disseminado em vários municípios ou países?', 
+                      selectInput('verific_geog_dissemina', label = 'O evento está disseminado em vários municípios ou países?', 
                       choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = 0),
                       selectInput('verific_geog_notific', label = 'O evento está notificado em mais de um estado ou região?', 
                       choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = 0),
@@ -171,3 +174,76 @@
 
   })
   
+ #-------------------------------------------------------------------------
+  #enviando dados
+ #-------------------------------------------------------------------------
+
+    #criando o df dos dados inseridos
+  verific_dados_empilhados <- reactive({
+                                if(!isTRUE(input$verific_rumor)){
+                                    data.frame('id' = verific_selected(),
+                                           'send_usuario_verifica' = check_user()[,'usuario'],
+                                           'send_time_verifica'   = Sys.time(),
+                                           'data_retorno' = input$verific_data,
+                                           'verifica' = input$verific_rumor)
+
+                                }else{
+                                 data.frame('id' = verific_selected(),
+                                           'send_usuario_verifica' = check_user()[,'usuario'],
+                                           'send_time_verifica'   = Sys.time(),
+                                           'data_retorno' = input$verific_data,
+                                           'verifica' = input$verific_rumor,
+                                           'prob_dissemina' =  input$verific_prob_dissemina,
+                                           'prob_alerta' =  input$verific_prob_alerta,
+                                           'prob_inesp' = input$verific_prob_inesperado,
+                                           'prob_reintroducao' = input$verific_prob_inesperado,
+                                           'prob_manejo' = input$verific_prob_manejo,
+                                           'geog_dissemina' = input$verific_geog_dissemina,
+                                           'geog_notifica' = input$verific_geog_notific,
+                                           'geog_inst' = input$verific_geog_inst,
+                                           'evento_surto' = input$verific_evento_surto,
+                                           'evento_alerta' = input$verific_evento_alerta,
+                                           'evento_obito' = input$verific_evento_obito,
+                                           'evento_transmissi' = input$verific_evento_transmissi,
+                                           'evento_pops' = input$verific_evento_pops,
+                                           'assist_hosp' = input$verific_assist_hosp,
+                                           'assist_medic' = input$verific_assist_medic,
+                                           'assist_profsaude' = input$verific_assist_profsaude,
+                                           'social_estigma' = input$verific_social_estigma,
+                                           'social_economica' = input$verific_social_economica,
+                                           'social_convivencia' = input$verific_social_convivencia,
+                                           'capac_atraso' = input$verific_capac_atraso,
+                                           'capac_sobrecarga' = input$verific_capac_sobrecarga
+                                           )
+                                }
+                                    })                   
+   
+
+ #--------------------------------------------------------------------------
+ #modal confirmação
+ #--------------------------------------------------------------------------
+  
+ #retorno de confirmação
+ # aparecer o formulário inicial de senha
+ observeEvent(input$verific_enviar, {
+  
+  dadoi <-  verific_dados_empilhados()
+ #-----------------------------------------------------------------------------
+ #reiniciando todos os inputs
+  shinyjs::reset(id = 'verific')
+  
+ #-----------------------------------------------------------------------------
+   
+ DBI::dbWriteTable(conn(),value = dadoi, name = "rumores_verifica", append = T)    
+ 
+ on.exit(DBI::dbDisconnect(conn()))
+  
+  showModal(modalDialog(
+      title = NULL,
+       tagList(
+        p("Verificação enviada com sucesso")),
+        easyClose = TRUE,
+        footer = NULL
+      )
+      )
+  })  #end observe event
