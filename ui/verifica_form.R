@@ -2,10 +2,9 @@
 
  tabPanel(title = 'Verificação de rumor',
  
-
  tags$div(id = 'verifica', class = 'container',
         fluidRow(
-            column(6,
+            column(8,
                 h4('Rumores em Verificação'),
                 uiOutput('verific_lista_rumor') 
             ),

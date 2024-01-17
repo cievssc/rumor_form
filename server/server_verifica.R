@@ -1,14 +1,13 @@
  #server verificação rumores (15-jan-2024, 13:31h)
- 
 
+  verific_rumores <- reactiveVal() 
   #lista de rumores a serem verificados
-  verific_rumores <- eventReactive(c(input$navbar == 'Verificação de rumor',
-                                   input$verific_enviar),{
+  observeEvent(input$navbar == 'Verificação de rumor' | input$verific_enviar,{
                     lista_verificadas <- DBI::dbGetQuery(conn(), "SELECT id FROM rumores_verifica")
                      dadoi <- DBI::dbGetQuery(conn(), "SELECT id, data_noticia, descricao,
                                 area_tecnica FROM rumores_evento WHERE verific_tecnica = TRUE")
                      dadoi <- dadoi[!(dadoi$id %in% lista_verificadas[,1]),] #mostrar somente rumores que não foram verificados ainda (16-jan-24, 16:34h)
-                     dadoi
+                     verific_rumores(dadoi)
   })
 
   #-------------------------------------------------------------------------
@@ -48,13 +47,17 @@
   output$verific_area_tecnica <- renderUI({
         if(length(verific_selected()) == 0){NULL}else{
         tagList(    
-         dateInput('verific_data', 'Data retorno da área técnica', value = Sys.Date(), format = '%dd/%mm/%yyyy'),
+         dateInput('verific_data', 'Data retorno da área técnica', value = Sys.Date(), format = 'dd/mm/yyyy'),
                 checkboxInput('verific_rumor', label = 'O rumor é verídico?',  value = F)  
                )
         }
 
   })
 
+  #botão verific_enviar
+  observe({
+  shinyjs::toggleState("verific_enviar", length(verific_selected()) != 0)
+})
   #------------------------------------
   #output opcoes
 
@@ -230,14 +233,14 @@
   dadoi <-  verific_dados_empilhados()
  #-----------------------------------------------------------------------------
  #reiniciando todos os inputs
-  shinyjs::reset(id = 'verific')
+  shinyjs::reset(id = 'verifica')
   
  #-----------------------------------------------------------------------------
    
  DBI::dbWriteTable(conn(),value = dadoi, name = "rumores_verifica", append = T)    
  
  on.exit(DBI::dbDisconnect(conn()))
-  
+ 
   showModal(modalDialog(
       title = NULL,
        tagList(
