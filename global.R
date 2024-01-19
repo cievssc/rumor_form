@@ -22,6 +22,8 @@
  #library('scales')
  library('ggplot2')
  library('formattable') #tabelas personalizadas
+
+ library('reactable')
  
  #library('auth0')
  #a0_1 <- auth0::auth0_info()

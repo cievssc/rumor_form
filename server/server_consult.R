@@ -3,7 +3,8 @@
   #lista formulários
   #-------------------------------------------------------------------------
   #obtendo so dados
-  consult_data <- eventReactive(c(input$consult_consultar,input$consult_apagar), {
+  consult_data <- reactiveVal()
+             observeEvent(input$consult_consultar | input$consult_apagar, {
                                 Sys.sleep(.3)
                                 usuario = check_user()[,'usuario']
                                
@@ -17,13 +18,13 @@
                                                       dia %in% seq(as.Date(input$consult_periodo[1]),as.Date(input$consult_periodo[2]),'day'))
                                  formulario$dia <- NULL
                                  on.exit(DBI::dbDisconnect(conn()))
-                                 formulario  
-                                })
+                                 consult_data(formulario)  
+                                }, ignoreInit  = T)
  
   
   lista_formulario <- reactiveVal(NULL)
 
-                      observeEvent(input$consult_consultar,{
+                      observeEvent(c(input$consult_consultar, input$consult_apagar),{
                                 formulario <- consult_data()
                                 formulario <- formulario[,c(2,19,20,1,3,5:18)]
                                   names(formulario) <- c('id', 'Responsável','dt_envio','Semana\nEpidemiológica', 'Dt.Notícia','Descrição','Link',
@@ -33,7 +34,7 @@
                              if(is.null(consult_data())) return() 
                                    
                              lista_formulario(formulario)     
-                               })
+                               }, ignoreInit = T)
                                         
   output$consult_listaforms <-DT::renderDT(lista_formulario(), selection = 'single', rownames = F)
   
