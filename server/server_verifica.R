@@ -56,8 +56,19 @@
 
   #botão verific_enviar
   observe({
-  shinyjs::toggleState("verific_enviar", length(verific_selected()) != 0)
-})
+  
+  vazio <- any(is.na(as.numeric(c(input$verific_prob_dissemina,input$verific_prob_alerta, input$verific_prob_inesperado, input$verific_prob_inesperado,
+               input$verific_prob_manejo, input$verific_geog_dissemina, input$verific_geog_notific, input$verific_geog_inst,
+               input$verific_evento_surto, input$verific_evento_alerta, input$verific_evento_obito, input$verific_evento_transmissi,
+               input$verific_evento_pops, input$verific_assist_hosp, input$verific_assist_medic, input$verific_assist_profsaude,
+               input$verific_social_estigma, input$verific_social_economica, input$verific_social_convivencia, input$verific_capac_atraso,
+               input$verific_capac_sobrecarga))))
+
+  shinyjs::toggleState("verific_enviar", 
+                    if(!isTRUE(input$verific_rumor)) {length(verific_selected()) != 0}else{
+                    ( length(verific_selected()) != 0 & !isTRUE(vazio)) 
+                    })
+ })
   #------------------------------------
   #output opcoes
 
