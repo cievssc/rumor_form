@@ -230,7 +230,75 @@
         }
 
   })
+
+  #------------------------------------
+  #output boxes (add 22-jan-24, 14:01h)
+
+  alert_boxes <- function(x, ...){
+       box <- withTags(
+              div(class = 'alert',
+              ...)
+        )
+        tagAppendAttributes(box, class = x)
   
+
+  }
+
+  output$verific_boxes <- renderUI({
+      prob <- sum(as.numeric(c(input$verific_prob_dissemina,input$verific_prob_alerta, input$verific_prob_inesperado, input$verific_prob_inesperado,
+               input$verific_prob_manejo)))
+      impact <- sum(as.numeric(c(input$verific_geog_dissemina, input$verific_geog_notific, input$verific_geog_inst,
+               input$verific_evento_surto, input$verific_evento_alerta, input$verific_evento_obito, input$verific_evento_transmissi,
+               input$verific_evento_pops, input$verific_assist_hosp, input$verific_assist_medic, input$verific_assist_profsaude,
+               input$verific_social_estigma, input$verific_social_economica, input$verific_social_convivencia, input$verific_capac_atraso,
+               input$verific_capac_sobrecarga)))
+
+      if(is.na(prob)){prob_box <- NULL}else{
+          if(prob <2){prob_risco <- list('Muito Improvável','alert-light')}
+           if(prob %in% 2:3){prob_risco <-  list('Improvável', 'alert-secondary')}
+            if(prob %in% 4:5){prob_risco <-  list('Provável', 'alert-warning')}
+             if(prob %in% 6:8){list('Muito provável', 'alert-warning')}
+              if(prob >=9){prob_risco <-  list('Quase certo', 'alert-danger')}
+        prob_box <- alert_boxes(prob_risco[[2]], h4(class = 'alert-heading', 'Probabilidade'),  strong(prob_risco[[1]]))
+      }
+
+      if(is.na(impact)){impact_box <- NULL}else{
+        if(impact <2){impact_risco <-  list('Mínimo','alert-light')}
+          if(impact %in% 2:3){impact_risco <-  list('Baixo', 'alert-secondary')}
+            if(impact %in% 4:5){impact_risco <- list('Moderado', 'alert-warning')}
+              if(impact %in% 6:8){impact_risco <-  list('Alto', 'alert-warning')}
+                if(impact >= 9){impact_risco <- list('Muito alto', 'alert-danger')}
+        impact_box <- alert_boxes(impact_risco[[2]], h4(class = 'alert-heading', 'Impacto'), strong(impact_risco[[1]]))
+      }
+
+      if(is.na(prob) | is.na(impact)){analise_box <- NULL}else{
+        analise_risco <- ifelse(prob_risco[[1]] %in% c('Muito improvável', 'Improvável') & impact_risco[[1]] == 'Mínimo','Muito baixo',
+                            ifelse((prob_risco[[1]] %in% c('Provável', 'Muito provável', 'Quase certo') & impact_risco[[1]] == 'Mínimo') |
+                            (prob_risco[[1]] %in% c('Improvável', 'Muito improvável') & impact_risco[[1]] %in% c('Baixo', 'Moderado')), 'Baixo',
+                              ifelse(prob_risco[[1]] %in% c('Provável', 'Muito provável', 'Quase certo') & impact_risco[[1]] == 'Baixo','Moderado',
+                                ifelse((prob_risco[[1]] %in% c('Provável', 'Muito provável', 'Quase certo') & impact_risco[[1]] == 'Moderado') |
+                                (prob_risco[[1]] %in% c('Improvável', 'Muito improvável') & impact_risco[[1]] %in% c('Alto', 'Muito alto')) |
+                                (prob_risco[[1]] %in% c('Provável') & impact_risco[[1]] %in% c('Alto')), 'Alto', "Muito alto"
+            ))))
+
+        analise_colorbox <- ifelse(analise_risco %in% c('Muito baixo', 'Baixo'), 'alert-light',
+                              ifelse(analise_risco %in% c('Moderado'), 'alert-warning', 'alert-danger'))
+
+        analise_box <- alert_boxes(analise_colorbox, h4(class = 'alert-heading', 'Avaliação de Risco'), strong(analise_risco))
+
+        
+      }
+
+  tagList(
+        fluidRow(
+          column(3, prob_box),
+          column(3, impact_box),
+          column(6, analise_box)
+        )
+      )
+      
+  }) #end output renderbox
+
  #-------------------------------------------------------------------------
   #enviando dados
  #-------------------------------------------------------------------------

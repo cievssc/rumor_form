@@ -17,6 +17,8 @@
         ), #endRow
         hr(),
         uiOutput('verific_opcoes'),
+        hr(),
+        uiOutput(('verific_boxes')),
        
     br(),
     fluidRow(
