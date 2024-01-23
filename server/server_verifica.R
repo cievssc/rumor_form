@@ -87,31 +87,31 @@
                       choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL,
                       options = list(
                       onInitialize = I('function() { this.setValue(""); }')
-                      )), 
+                      ), width = '85%'), 
 
                       selectizeInput('verific_prob_alerta', label = 'Evento em alerta internacional ou ESPII, evento no marco do RSI iminente ingresso no país?', 
                       choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL,options = list(
                       onInitialize = I('function() { this.setValue(""); }')
-                      )) 
+                      ), width = '85%') 
                     ), #end column
 
                     column(4,
                       selectizeInput('verific_prob_inesperado', label = 'Trata-se de evento  inesperado ou desconhecido?', 
                       choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
                       onInitialize = I('function() { this.setValue(""); }')
-                      )), 
+                      ), width = '85%'), 
 
                       selectizeInput('verific_prob_reintroducao', label = 'Representa a reintrodução de doença erradicada?', 
                       choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
                       onInitialize = I('function() { this.setValue(""); }')
-                      )) 
+                      ), width = '85%') 
                     ), #end column
 
                     column(4,
                       selectizeInput('verific_prob_manejo', label = 'A localidade não tem capacidade de manejo do evento?', 
                       choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
                       onInitialize = I('function() { this.setValue(""); }')
-                      ))
+                      ), width = '85%')
                     ) #end column
                 )
                 ) #end row
@@ -131,61 +131,63 @@
                       selectizeInput('verific_geog_dissemina', label = 'O evento está disseminado em vários municípios ou países?', 
                       choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
                       onInitialize = I('function() { this.setValue(""); }')
-                      )),
+                      ), width = '85%'),
                       selectizeInput('verific_geog_notific', label = 'O evento está notificado em mais de um estado ou região?', 
                       choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
                       onInitialize = I('function() { this.setValue(""); }')
-                      )),
+                      ), width = '85%'),
                       selectizeInput('verific_geog_inst', label = 'O evento tem sido notificado em mais uma instituição?', 
                       choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
                       onInitialize = I('function() { this.setValue(""); }')
-                      ))), #end column
+                      ), width = '85%')), #end column
 
                     column(8,
                     h5('Característica do Evento'),
+                    tags$div(style = 'display: inline',
                      selectizeInput('verific_evento_surto', label = 'Evento está envolvido em suspeita ou confirmado de surto?', 
                       choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
                       onInitialize = I('function() { this.setValue(""); }')
-                      )),
+                      ), width = '85%'),
                       selectizeInput('verific_evento_alerta', label = 'Trata-se de uma doença, agravo ou eventos de saúde pública com alterações
                        do perfil clínico epidemiológico (níveis de incidência, mortalidade, letalidade) ou em zona de alerta?', 
                       choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
                       onInitialize = I('function() { this.setValue(""); }')
-                      )),
+                      ), width = '85%'),
                       selectizeInput('verific_evento_obito', label = 'Trata-se de evento de saúde pública com óbitos acima do esperados?', 
                       choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
                       onInitialize = I('function() { this.setValue(""); }')
-                      )),
+                      ), width = '85%'),
                       selectizeInput('verific_evento_transmissi', label = 'Evento de alta patogenicidade, virulência e transmissibilidade?', 
                       choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
                       onInitialize = I('function() { this.setValue(""); }')
-                      )),
+                      ), width = '85%'),
                       selectizeInput('verific_evento_pops', label = 'O evento afeta populações vulneráveis?', 
                       choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
                       onInitialize = I('function() { this.setValue(""); }')
-                      ))
+                      ), width = '85%')
                       )
+                    ) #end column
                     ) #endRow
                 ) #end card-body
                 ),  #end card
 
             div(class = "card border-secondary mb-3",
                 div( class = 'card-header','Impacto na Assistência:'),
-                div(class = 'card-body', style = 'display: flex',
+                div(class = 'card-body', style = 'display: inline-flex',
                 
                     selectizeInput('verific_assist_hosp', label = 'Apresenta aspectos que demonstram aumento aos níveis atendimentos ou hospitalizações?', 
                       choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
                       onInitialize = I('function() { this.setValue(""); }')
-                      ), width = '60%'),
+                      ), width = '85%'),
                       selectizeInput('verific_assist_medic', label = 'Evento envolve grave comprometimento assistencial?  Não existem tratamentos específicos 
                       ou requer uso de medicamentos controlados?', 
                       choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
                       onInitialize = I('function() { this.setValue(""); }')
-                      ), width = '60%'),
+                      ), width = '85%'),
                       selectizeInput('verific_assist_profsaude', label = 'O evento afeta profissionais de saúde?', 
                       choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
                       onInitialize = I('function() { this.setValue(""); }')
-                      ), width = '60%')
+                      ), width = '85%')
 
                 ) #end card-body
                 ),  #end card
@@ -198,15 +200,15 @@
                     (que gere medo, estigmatização ou indignição social)', 
                       choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
                       onInitialize = I('function() { this.setValue(""); }')
-                      ), width = '60%'),
+                      ), width = '85%'),
                       selectizeInput('verific_social_economica', label = 'O evento afeta  localmente o turismo ou tem alta influência econômica?', 
                       choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
                       onInitialize = I('function() { this.setValue(""); }')
-                      ), width = '60%'),
+                      ), width = '85%'),
                       selectizeInput('verific_social_convivencia', label = 'O evento afeta a convivência social?', 
                       choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
                       onInitialize = I('function() { this.setValue(""); }')
-                      ), width = '60%')
+                      ), width = '85%')
                     
                 ) #end card-body
                 ),  #end card
@@ -218,11 +220,11 @@
                     selectizeInput('verific_capac_atraso', label = 'Existem atrasos nas notificações ou análises de dados ou silêncio epidemiológico?', 
                       choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
                       onInitialize = I('function() { this.setValue(""); }')
-                      ), width = '60%'),
+                      ), width = '85%'),
                       selectizeInput('verific_capac_sobrecarga', label = 'Existe sobrecarga na equipe de vigilância ou não tem equipe de pronta resposta?', 
                       choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
                       onInitialize = I('function() { this.setValue(""); }')
-                      ), width = '60%')
+                      ), width = '85%')
                 ) #end card-body
                 )  #end card
 
@@ -245,6 +247,7 @@
   }
 
   output$verific_boxes <- renderUI({
+      
       prob <- sum(as.numeric(c(input$verific_prob_dissemina,input$verific_prob_alerta, input$verific_prob_inesperado, input$verific_prob_inesperado,
                input$verific_prob_manejo)))
       impact <- sum(as.numeric(c(input$verific_geog_dissemina, input$verific_geog_notific, input$verific_geog_inst,
@@ -287,8 +290,9 @@
         analise_box <- alert_boxes(analise_colorbox, h4(class = 'alert-heading', 'Avaliação de Risco'), strong(analise_risco))
 
         
-      }
+      } #end if
 
+  if(!isTRUE(input$verific_rumor)){NULL}else{
   tagList(
         fluidRow(
           column(3, prob_box),
@@ -296,6 +300,7 @@
           column(6, analise_box)
         )
       )
+  } #end if
       
   }) #end output renderbox
 
