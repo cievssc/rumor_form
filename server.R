@@ -44,6 +44,9 @@
  #verifica_form
  source('./server/server_verifica.R', local = T, encoding = 'UTF-8')
 
+ #monitora_form
+ source('./server/server_monitora.R', local = T, encoding = 'UTF-8')
+
  #server_saida
  source('./server/server_saida.R', local = T, encoding = 'UTF-8')
 

@@ -16,7 +16,7 @@
 
         ), #endRow
         hr(),
-        uiOutput('monitora_desfecho'),
+        uiOutput('monitora_desfecho_opcoes'),
         
        
     br(),
