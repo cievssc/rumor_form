@@ -371,7 +371,10 @@
                                            'social_economica' = input$verific_social_economica,
                                            'social_convivencia' = input$verific_social_convivencia,
                                            'capac_atraso' = input$verific_capac_atraso,
-                                           'capac_sobrecarga' = input$verific_capac_sobrecarga
+                                           'capac_sobrecarga' = input$verific_capac_sobrecarga,
+                                           'risc_prob' = verifica_impacto()[1],
+                                           'risc_impact' = verifica_impacto()[2],
+                                           'risc_avalia' = verifica_impacto()[3]
                                            )
                                 }
                                     })                   
