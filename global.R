@@ -50,6 +50,6 @@ source('./www/highcharts/generalhigh.R')
                      password = 'cievs666', dbname = 'rumores')} 
 
 
- enableBookmarking(store = "url")
+ #enableBookmarking(store = "url")
  
  

@@ -1,6 +1,7 @@
  #aba para verificação do rumor (12-jan-2024, 14:35h)
 
  tabPanel(title = 'Verificação de rumor',
+
  
  tags$div(id = 'verifica', class = 'container',
         fluidRow(
@@ -16,6 +17,8 @@
         ), #endRow
         hr(),
         uiOutput('verific_opcoes'),
+        hr(),
+        uiOutput(('verific_boxes')),
        
     br(),
     fluidRow(

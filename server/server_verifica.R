@@ -56,8 +56,19 @@
 
   #botão verific_enviar
   observe({
-  shinyjs::toggleState("verific_enviar", length(verific_selected()) != 0)
-})
+  
+  vazio <- any(is.na(as.numeric(c(input$verific_prob_dissemina,input$verific_prob_alerta, input$verific_prob_inesperado, input$verific_prob_inesperado,
+               input$verific_prob_manejo, input$verific_geog_dissemina, input$verific_geog_notific, input$verific_geog_inst,
+               input$verific_evento_surto, input$verific_evento_alerta, input$verific_evento_obito, input$verific_evento_transmissi,
+               input$verific_evento_pops, input$verific_assist_hosp, input$verific_assist_medic, input$verific_assist_profsaude,
+               input$verific_social_estigma, input$verific_social_economica, input$verific_social_convivencia, input$verific_capac_atraso,
+               input$verific_capac_sobrecarga))))
+
+  shinyjs::toggleState("verific_enviar", 
+                    if(!isTRUE(input$verific_rumor)) {length(verific_selected()) != 0}else{
+                    ( length(verific_selected()) != 0 & !isTRUE(vazio)) 
+                    })
+ })
   #------------------------------------
   #output opcoes
 
@@ -72,24 +83,35 @@
                 fluidRow(
                     
                     column(4,
-                      selectInput('verific_prob_dissemina', label = 'Apresenta risco de disseminação nacional ou internacional?', 
-                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = 0), 
+                      selectizeInput('verific_prob_dissemina', label = 'Apresenta risco de disseminação nacional ou internacional?', 
+                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL,
+                      options = list(
+                      onInitialize = I('function() { this.setValue(""); }')
+                      ), width = '85%'), 
 
-                      selectInput('verific_prob_alerta', label = 'Evento em alerta internacional ou ESPII, evento no marco do RSI iminente ingresso no país?', 
-                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = 0) 
+                      selectizeInput('verific_prob_alerta', label = 'Evento em alerta internacional ou ESPII, evento no marco do RSI iminente ingresso no país?', 
+                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL,options = list(
+                      onInitialize = I('function() { this.setValue(""); }')
+                      ), width = '85%') 
                     ), #end column
 
                     column(4,
-                      selectInput('verific_prob_inesperado', label = 'Trata-se de evento  inesperado ou desconhecido?', 
-                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = 0), 
+                      selectizeInput('verific_prob_inesperado', label = 'Trata-se de evento  inesperado ou desconhecido?', 
+                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
+                      onInitialize = I('function() { this.setValue(""); }')
+                      ), width = '85%'), 
 
-                      selectInput('verific_prob_reintroducao', label = 'Representa a reintrodução de doença erradicada?', 
-                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = 0) 
+                      selectizeInput('verific_prob_reintroducao', label = 'Representa a reintrodução de doença erradicada?', 
+                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
+                      onInitialize = I('function() { this.setValue(""); }')
+                      ), width = '85%') 
                     ), #end column
 
                     column(4,
-                      selectInput('verific_prob_manejo', label = 'A localidade não tem capacidade de manejo do evento?', 
-                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = 0)
+                      selectizeInput('verific_prob_manejo', label = 'A localidade não tem capacidade de manejo do evento?', 
+                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
+                      onInitialize = I('function() { this.setValue(""); }')
+                      ), width = '85%')
                     ) #end column
                 )
                 ) #end row
@@ -106,42 +128,66 @@
                 fluidRow(                    
                     column(4, 
                     h5('Extensão Geográfica'),
-                      selectInput('verific_geog_dissemina', label = 'O evento está disseminado em vários municípios ou países?', 
-                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = 0),
-                      selectInput('verific_geog_notific', label = 'O evento está notificado em mais de um estado ou região?', 
-                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = 0),
-                      selectInput('verific_geog_inst', label = 'O evento tem sido notificado em mais uma instituição?', 
-                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = 0)), #end column
+                      selectizeInput('verific_geog_dissemina', label = 'O evento está disseminado em vários municípios ou países?', 
+                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
+                      onInitialize = I('function() { this.setValue(""); }')
+                      ), width = '85%'),
+                      selectizeInput('verific_geog_notific', label = 'O evento está notificado em mais de um estado ou região?', 
+                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
+                      onInitialize = I('function() { this.setValue(""); }')
+                      ), width = '85%'),
+                      selectizeInput('verific_geog_inst', label = 'O evento tem sido notificado em mais uma instituição?', 
+                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
+                      onInitialize = I('function() { this.setValue(""); }')
+                      ), width = '85%')), #end column
 
                     column(8,
                     h5('Característica do Evento'),
-                     selectInput('verific_evento_surto', label = 'Evento está envolvido em suspeita ou confirmado de surto?', 
-                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = 0),
-                      selectInput('verific_evento_alerta', label = 'Trata-se de uma doença, agravo ou eventos de saúde pública com alterações
+                    tags$div(style = 'display: inline',
+                     selectizeInput('verific_evento_surto', label = 'Evento está envolvido em suspeita ou confirmado de surto?', 
+                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
+                      onInitialize = I('function() { this.setValue(""); }')
+                      ), width = '85%'),
+                      selectizeInput('verific_evento_alerta', label = 'Trata-se de uma doença, agravo ou eventos de saúde pública com alterações
                        do perfil clínico epidemiológico (níveis de incidência, mortalidade, letalidade) ou em zona de alerta?', 
-                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = 0),
-                      selectInput('verific_evento_obito', label = 'Trata-se de evento de saúde pública com óbitos acima do esperados?', 
-                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = 0),
-                      selectInput('verific_evento_transmissi', label = 'Evento de alta patogenicidade, virulência e transmissibilidade?', 
-                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = 0),
-                      selectInput('verific_evento_pops', label = 'O evento afeta populações vulneráveis?', 
-                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = 0)
+                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
+                      onInitialize = I('function() { this.setValue(""); }')
+                      ), width = '85%'),
+                      selectizeInput('verific_evento_obito', label = 'Trata-se de evento de saúde pública com óbitos acima do esperados?', 
+                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
+                      onInitialize = I('function() { this.setValue(""); }')
+                      ), width = '85%'),
+                      selectizeInput('verific_evento_transmissi', label = 'Evento de alta patogenicidade, virulência e transmissibilidade?', 
+                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
+                      onInitialize = I('function() { this.setValue(""); }')
+                      ), width = '85%'),
+                      selectizeInput('verific_evento_pops', label = 'O evento afeta populações vulneráveis?', 
+                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
+                      onInitialize = I('function() { this.setValue(""); }')
+                      ), width = '85%')
                       )
+                    ) #end column
                     ) #endRow
                 ) #end card-body
                 ),  #end card
 
             div(class = "card border-secondary mb-3",
                 div( class = 'card-header','Impacto na Assistência:'),
-                div(class = 'card-body', style = 'display: flex',
+                div(class = 'card-body', style = 'display: inline-flex',
                 
-                    selectInput('verific_assist_hosp', label = 'Apresenta aspectos que demonstram aumento aos níveis atendimentos ou hospitalizações?', 
-                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = 0, width = '60%'),
-                      selectInput('verific_assist_medic', label = 'Evento envolve grave comprometimento assistencial?  Não existem tratamentos específicos 
+                    selectizeInput('verific_assist_hosp', label = 'Apresenta aspectos que demonstram aumento aos níveis atendimentos ou hospitalizações?', 
+                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
+                      onInitialize = I('function() { this.setValue(""); }')
+                      ), width = '85%'),
+                      selectizeInput('verific_assist_medic', label = 'Evento envolve grave comprometimento assistencial?  Não existem tratamentos específicos 
                       ou requer uso de medicamentos controlados?', 
-                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = 0, width = '60%'),
-                      selectInput('verific_assist_profsaude', label = 'O evento afeta profissionais de saúde?', 
-                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = 0, width = '60%')
+                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
+                      onInitialize = I('function() { this.setValue(""); }')
+                      ), width = '85%'),
+                      selectizeInput('verific_assist_profsaude', label = 'O evento afeta profissionais de saúde?', 
+                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
+                      onInitialize = I('function() { this.setValue(""); }')
+                      ), width = '85%')
 
                 ) #end card-body
                 ),  #end card
@@ -150,13 +196,19 @@
                 div( class = 'card-header','Impacto Social:'),
                 div(class = 'card-body', style = 'display: flex',
                 
-                    selectInput('verific_social_estigma', label = 'Trata-se de doença ou agravo ou evento de saúde pública com alta relevância social 
+                    selectizeInput('verific_social_estigma', label = 'Trata-se de doença ou agravo ou evento de saúde pública com alta relevância social 
                     (que gere medo, estigmatização ou indignição social)', 
-                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = 0, width = '60%'),
-                      selectInput('verific_social_economica', label = 'O evento afeta  localmente o turismo ou tem alta influência econômica?', 
-                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = 0, width = '60%'),
-                      selectInput('verific_social_convivencia', label = 'O evento afeta a convivência social?', 
-                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = 0, width = '60%')
+                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
+                      onInitialize = I('function() { this.setValue(""); }')
+                      ), width = '85%'),
+                      selectizeInput('verific_social_economica', label = 'O evento afeta  localmente o turismo ou tem alta influência econômica?', 
+                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
+                      onInitialize = I('function() { this.setValue(""); }')
+                      ), width = '85%'),
+                      selectizeInput('verific_social_convivencia', label = 'O evento afeta a convivência social?', 
+                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
+                      onInitialize = I('function() { this.setValue(""); }')
+                      ), width = '85%')
                     
                 ) #end card-body
                 ),  #end card
@@ -165,10 +217,14 @@
                 div( class = 'card-header','Impacto na capacidade de resposta:'),
                 div(class = 'card-body', style = 'display: flex',
                  
-                    selectInput('verific_capac_atraso', label = 'Existem atrasos nas notificações ou análises de dados ou silêncio epidemiológico?', 
-                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = 0, width = '60%'),
-                      selectInput('verific_capac_sobrecarga', label = 'Existe sobrecarga na equipe de vigilância ou não tem equipe de pronta resposta?', 
-                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = 0, width = '60%')
+                    selectizeInput('verific_capac_atraso', label = 'Existem atrasos nas notificações ou análises de dados ou silêncio epidemiológico?', 
+                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
+                      onInitialize = I('function() { this.setValue(""); }')
+                      ), width = '85%'),
+                      selectizeInput('verific_capac_sobrecarga', label = 'Existe sobrecarga na equipe de vigilância ou não tem equipe de pronta resposta?', 
+                      choices = c('Não' = 0 ,'Talvez' = 1, 'Sim' = 2), selected = NULL, options = list(
+                      onInitialize = I('function() { this.setValue(""); }')
+                      ), width = '85%')
                 ) #end card-body
                 )  #end card
 
@@ -176,7 +232,106 @@
         }
 
   })
+
+  #------------------------------------
+  #output boxes (add 22-jan-24, 14:01h)
+
+  #reactive com as verificações de impacto (add em 26-jan-2024, 14:25h)
+  verifica_impacto <- reactive({
+      
+      prob <- sum(as.numeric(c(input$verific_prob_dissemina,input$verific_prob_alerta, input$verific_prob_inesperado, input$verific_prob_inesperado,
+               input$verific_prob_manejo)))
+      impact <- sum(as.numeric(c(input$verific_geog_dissemina, input$verific_geog_notific, input$verific_geog_inst,
+               input$verific_evento_surto, input$verific_evento_alerta, input$verific_evento_obito, input$verific_evento_transmissi,
+               input$verific_evento_pops, input$verific_assist_hosp, input$verific_assist_medic, input$verific_assist_profsaude,
+               input$verific_social_estigma, input$verific_social_economica, input$verific_social_convivencia, input$verific_capac_atraso,
+               input$verific_capac_sobrecarga)))
+
+      if(is.na(prob)){prob_risco <- NA}else{
+          if(prob <2){prob_risco <- c('Muito improvável')}
+           if(prob %in% 2:3){prob_risco <-  c('Improvável')}
+            if(prob %in% 4:5){prob_risco <-  c('Provável')}
+             if(prob %in% 6:8){prob_risco <- c('Muito provável')}
+              if(prob >=9){prob_risco <-  c('Quase certo')}       }
+    
+
+      if(is.na(impact)){impact_risco <- NA}else{
+        if(impact <2){impact_risco <-  c('Mínimo')}
+          if(impact %in% 2:3){impact_risco <-  c('Baixo')}
+            if(impact %in% 4:5){impact_risco <- c('Moderado')}
+              if(impact %in% 6:8){impact_risco <-  c('Alto')}
+                if(impact >= 9){impact_risco <- c('Muito alto')}}
+       
+
+      if(is.na(prob) | is.na(impact)){analise_risco <- NA}else{
+        analise_risco <- ifelse(prob_risco[[1]] %in% c('Muito improvável', 'Improvável') & impact_risco[[1]] == 'Mínimo','Muito baixo',
+                            ifelse((prob_risco[[1]] %in% c('Provável', 'Muito provável', 'Quase certo') & impact_risco[[1]] == 'Mínimo') |
+                            (prob_risco[[1]] %in% c('Improvável', 'Muito improvável') & impact_risco[[1]] %in% c('Baixo', 'Moderado')), 'Baixo',
+                              ifelse(prob_risco[[1]] %in% c('Provável', 'Muito provável', 'Quase certo') & impact_risco[[1]] == 'Baixo','Moderado',
+                                ifelse((prob_risco[[1]] %in% c('Provável', 'Muito provável', 'Quase certo') & impact_risco[[1]] == 'Moderado') |
+                                (prob_risco[[1]] %in% c('Improvável', 'Muito improvável') & impact_risco[[1]] %in% c('Alto', 'Muito alto')) |
+                                (prob_risco[[1]] %in% c('Provável') & impact_risco[[1]] %in% c('Alto')), 'Alto', "Muito alto"
+            ))))
+       
+      } #end if
   
+  c(prob_risco, impact_risco, analise_risco)
+  }) #end reactive
+
+  #função dos boxes
+  alert_boxes <- function(x, ...){
+       box <- withTags(
+              div(class = 'alert',
+              ...)
+        )
+        tagAppendAttributes(box, class = x)
+  
+
+  }
+
+  output$verific_boxes <- renderUI({
+     dadoi <- verifica_impacto()
+
+      if(is.na(dadoi[1])){prob_box <- NULL}else{
+          if(dadoi[1] == 'Muito improvável'){prob_risco <- list('Muito improvável','alert-light')}
+           if(dadoi[1] == 'Improvável'){prob_risco <-  list('Improvável', 'alert-secondary')}
+            if(dadoi[1] == 'Provável'){prob_risco <-  list('Provável', 'alert-warning')}
+             if(dadoi[1] == 'Muito Provável'){list('Muito provável', 'alert-warning')}
+              if(dadoi[1] == 'Quase certo'){prob_risco <-  list('Quase certo', 'alert-danger')}
+        prob_box <- alert_boxes(prob_risco[[2]], h4(class = 'alert-heading', 'Probabilidade'),  strong(prob_risco[[1]]))
+      }
+
+      if(is.na(dadoi[2])){impact_box <- NULL}else{
+        if(dadoi[2] == 'Mínimo'){impact_risco <-  list('Mínimo','alert-light')}
+          if(dadoi[2] == 'Baixo'){impact_risco <-  list('Baixo', 'alert-secondary')}
+            if(dadoi[2] == 'Moderado'){impact_risco <- list('Moderado', 'alert-warning')}
+              if(dadoi[2] == 'Alto'){impact_risco <-  list('Alto', 'alert-warning')}
+                if(dadoi[2] == 'Muito alto'){impact_risco <- list('Muito alto', 'alert-danger')}
+        impact_box <- alert_boxes(impact_risco[[2]], h4(class = 'alert-heading', 'Impacto'), strong(impact_risco[[1]]))
+      }
+
+      if(is.na(dadoi[1]) | is.na(dadoi[2])){analise_box <- NULL}else{
+        
+        analise_colorbox <- ifelse(dadoi[3] %in% c('Muito baixo', 'Baixo'), 'alert-light',
+                              ifelse(dadoi[3] %in% c('Moderado'), 'alert-warning', 'alert-danger'))
+
+        analise_box <- alert_boxes(analise_colorbox, h4(class = 'alert-heading', 'Avaliação de Risco'), strong(dadoi[3]))
+
+        
+      } #end if
+
+  if(!isTRUE(input$verific_rumor)){NULL}else{
+  tagList(
+        fluidRow(
+          column(3, prob_box),
+          column(3, impact_box),
+          column(6, analise_box)
+        )
+      )
+  } #end if
+      
+  }) #end output renderbox
+
  #-------------------------------------------------------------------------
   #enviando dados
  #-------------------------------------------------------------------------
@@ -216,7 +371,10 @@
                                            'social_economica' = input$verific_social_economica,
                                            'social_convivencia' = input$verific_social_convivencia,
                                            'capac_atraso' = input$verific_capac_atraso,
-                                           'capac_sobrecarga' = input$verific_capac_sobrecarga
+                                           'capac_sobrecarga' = input$verific_capac_sobrecarga,
+                                           'risc_prob' = verifica_impacto()[1],
+                                           'risc_impact' = verifica_impacto()[2],
+                                           'risc_avalia' = verifica_impacto()[3]
                                            )
                                 }
                                     })                   
