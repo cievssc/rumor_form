@@ -52,6 +52,18 @@
                                    code1 = selected[1]
                                    )
                                   DBI::dbSendQuery(conn(),query)
+
+                                  query <- DBI::sqlInterpolate(conn(), 
+                                   paste0("DELETE FROM rumores_verifica  WHERE id = ?code1"), 
+                                   code1 = selected[1]
+                                   )
+                                  DBI::dbSendQuery(conn(),query)
+
+                                  query <- DBI::sqlInterpolate(conn(), 
+                                   paste0("DELETE FROM rumores_monitora  WHERE id = ?code1"), 
+                                   code1 = selected[1]
+                                   )
+                                  DBI::dbSendQuery(conn(),query)
                                   
       on.exit(DBI::dbDisconnect(conn()))
 

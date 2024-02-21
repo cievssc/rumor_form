@@ -4,12 +4,10 @@
   #lista de rumores a serem monitorados
   observeEvent(input$navbar == 'Monitora' | input$monitora_enviar,{
                     lista_evento <- DBI::dbGetQuery(conn(), "SELECT id, data_noticia, doenca, area_tecnica FROM rumores_evento WHERE
-                                            id IN (SELECT id FROM rumores_verifica WHERE risc_avalia IN ('Alto', 'Muito alto')) AND
-                                            id IN (SELECT id FROM rumores_monitora WHERE monitora_encerra = FALSE) 
+                                            id IN (SELECT id FROM rumores_verifica WHERE risc_avalia IN ('Alto', 'Muito alto')) 
                                             ")
                     lista_verific <- DBI::dbGetQuery(conn(), "SELECT id, risc_avalia FROM rumores_verifica 
-                                            WHERE risc_avalia IN ('Alto', 'Muito alto') AND
-                                            id IN (SELECT id FROM rumores_monitora WHERE monitora_encerra = FALSE)")
+                                            WHERE risc_avalia IN ('Alto', 'Muito alto')")
                     lista_monitoradas <- dplyr::left_join(lista_evento, lista_verific, by = 'id')
                      monitora_rumores(lista_monitoradas)
   })
@@ -113,7 +111,7 @@
 
   })
 
-  observe({
-       if(input$monitora_agravo == 'Outra'){shinyjs::show('monitora_agravo')}else{shinyjs::hide('monitora_agravo')} 
-  }) #observe para ocultar o input de outro agravo
+  observeEvent(input$monitora_agravo,{
+       if(input$monitora_agravo == 'Outra'){shinyjs::show('monitora_outroagravo')}else{shinyjs::hide('monitora_outroagravo')} 
+  }, ignoreNULL = T) #observe para ocultar o input de outro agravo
 
