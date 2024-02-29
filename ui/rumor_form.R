@@ -28,7 +28,7 @@
 
       fluidRow(
        column(4,
-        selectInput('rumor_doenca', 'Doença:', choices = doenca, selected = NA, multiple = F),
+        uiOutput('rumor_ui_doenca'),
         selectInput('rumor_notif_imediata', 'Notificação imediata?', choices = c('Não', 'Sim'), selected = 'Não', multiple = F)
         ),
        column(4,

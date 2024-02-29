@@ -37,17 +37,18 @@
  load('tabs.RData')
  
  
+ #carregando funçes dashboard
+ #source('./funcoes_dashboard.R')
+ 
+ conn <- function(){DBI::dbConnect(RPostgres::Postgres(),  host = '172.22.34.56', port = 5432, user = 'dimitri',
+                     password = 'cievs666', dbname = 'rumores')} 
+ 
  source('./treating_data.R', local = T, encoding = 'UTF-8')
  #options(warn = -1)
  
 source('./www/highcharts/generalhigh.R')
  source('./www/highcharts/plotlyjs.R')
  
- #carregando funçes dashboard
- #source('./funcoes_dashboard.R')
- 
- conn <- function(){DBI::dbConnect(RPostgres::Postgres(),  host = '172.22.34.56', port = 5432, user = 'dimitri',
-                     password = 'cievs666', dbname = 'rumores')} 
 
 
  #enableBookmarking(store = "url")

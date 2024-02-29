@@ -1,5 +1,7 @@
  #app rumor form (31-ago-2023, 14:16h)
  #auth0_server(function(input, output, session) {
+
+
  function(input, output, session) {
 
  check_user <- reactiveVal(0)
@@ -49,6 +51,9 @@
 
  #server_saida
  source('./server/server_saida.R', local = T, encoding = 'UTF-8')
+
+ #server_config
+ source('./server/server_config.R', local = T, encoding = 'UTF-8')
 
  } #end server function
  #}, info = a0_1) #end server function
