@@ -37,7 +37,7 @@
        selectInput('rumor_fonte', 'Fonte:', choices = fonte, selected = 'CIEVS Nacional', multiple = F)
        ), 
        column(4,
-       selectInput('rumor_pais', 'País:', choices = centroide[!is.na(centroide$pais),'pais'], selected = 'Brasil', multiple = F),
+       selectInput('rumor_pais', 'País:', choices = c('Internacional',centroide[!is.na(centroide$pais),'pais']), selected = 'Brasil', multiple = F),
        uiOutput('rumor_estado_ui'),
        uiOutput('rumor_municipio_ui')
        )
