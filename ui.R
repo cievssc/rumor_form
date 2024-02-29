@@ -1,4 +1,9 @@
  #app Formulário Rumores (29-ago-2023, 15:25h)
+
+ #vetor doenças
+ doenca <- DBI::dbGetQuery(conn(), 'SELECT * FROM lista_agravo') %>% .[,1] 
+ DBI::dbDisconnect(conn())
+
  tags$html(
          tags$head(
          HTML('<script defer src="https://use.fontawesome.com/releases/v5.15.0/js/all.js"
@@ -35,7 +40,10 @@
          source('./ui/verifica_form.R', local = T, encoding = 'UTF-8')$value,  #tabpanel verificação de eventos 
          source('./ui/monitora_form.R', local = T, encoding = 'UTF-8')$value,  #tabpanel monitoramento eventos         
          
-        tabPanel('Sair') 
+        tabPanel('Sair'),
+
+        source('./ui/config_menu.R', local = T, encoding = 'UTF-8')$value  #tabMenu de configuração
+         
          
    ) #end navbarpage
 

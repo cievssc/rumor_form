@@ -1,10 +1,5 @@
  #criando algumas variáveis para o uso no sistema
 
- #vetor doenças
- load('doenca.RData')
- doenca <- append('Encefalite equina',doenca) %>% sort
- doenca <- c(doenca, NA)
-
  #vetor área técnica
  load('area_tecnica.RData')
 
@@ -16,4 +11,6 @@
             "Rumor Verídico", "OPAS/OMS", "IHR", 'CIEVS Nacional',
             'Clipping Comunicação', 'RSSOWL','Twitter',"OUTROS")
 
+
+ 
  

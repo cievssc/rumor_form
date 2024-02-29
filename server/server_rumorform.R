@@ -132,6 +132,12 @@ observe(
     )}
 }) #end renderui
 
+ #campo de doença (add em 29-fev-2024, 13:35h)
+ #vetor doenças
+ doenca <- reactiveVal(DBI::dbGetQuery(conn(), 'SELECT * FROM lista_agravo') %>% .[,1] )
+ 
+ output$rumor_ui_doenca <- renderUI({selectInput('rumor_doenca', 'Doença:', choices = doenca(), selected = NA, multiple = F)})
+ 
  #----------------------------------------------------------------------------------
    #criando o df dos dados inseridos
   rumor_dados_empilhados <- reactive({                                       
