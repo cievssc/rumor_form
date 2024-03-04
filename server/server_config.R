@@ -48,6 +48,12 @@
         doenca <- data.frame(doenca())
         names(doenca) <- 'Agravo'
         updateReactable('config_listatab', data = doenca)
+
+        updateSelectizeInput(session, 'monitora_agravo',
+                      choices = c(doenca, 'Outra'), selected = NULL, options = list(
+                      onInitialize = I('function() { this.setValue(""); }')
+                      ), width = '85%')
+
         removeModal()
         })
 

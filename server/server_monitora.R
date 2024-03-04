@@ -95,7 +95,7 @@
 
                     column(4,
                       selectizeInput('monitora_agravo', label = 'Qual doença ou agravo foi detectada?', 
-                      choices = c(doenca, 'Outra'), selected = NULL, options = list(
+                      choices = c(doenca(), 'Outra'), selected = NULL, options = list(
                       onInitialize = I('function() { this.setValue(""); }')
                       ), width = '85%'),
                       shinyjs::hidden(
