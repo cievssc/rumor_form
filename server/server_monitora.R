@@ -1,6 +1,7 @@
  #server monitoração rumores (15-jan-2024, 13:31h)
 
   monitora_rumores <- reactiveVal() 
+  rumores <- reactiveVal()
   #lista de rumores a serem monitorados
   observeEvent(input$navbar == 'Monitora' | input$monitora_enviar,{
                     lista_evento <- DBI::dbGetQuery(conn(), "SELECT id, data_noticia, doenca, area_tecnica FROM rumores_evento WHERE
@@ -11,8 +12,12 @@
                                             WHERE risc_avalia IN ('Alto', 'Muito alto') AND
                                                   id NOT IN (SELECT id FROM rumores_monitora WHERE monitora_encerra = 'TRUE')
                                                   ")
+
+                    rumoresdbi <- DBI::dbGetQuery(conn(), "SELECT * FROM rumores_monitora WHERE monitora_encerra = 'FALSE'")
+
                     lista_monitoradas <- dplyr::left_join(lista_evento, lista_verific, by = 'id')
-                     monitora_rumores(lista_monitoradas)
+                    monitora_rumores(lista_monitoradas)
+                    rumores(rumoresdbi)
   })
 
   #-------------------------------------------------------------------------
@@ -41,18 +46,18 @@
   })
   
   #------------------------------------
-  # opções monitoração
+  # opções monitoramento
   monitora_selected <- reactive({dadoi <- monitora_rumores()
                                linha <- getReactableState("monitora_lista", "selected")
                                dadoi[linha,'id']
                                }) 
   
-  # output monitoracao
+  # output monitoramento
 
   output$monitora_acoes <- renderUI({
         if(length(monitora_selected()) == 0){NULL}else{
         tagList(
-            checkboxGroupInput("monitora_lista_acoes", label = h3("Ações Realizadas"), 
+            checkboxGroupInput("monitora_lista_acoes", label = "Ações Realizadas", 
                 choices = list('Nota Informativa', 'Nota técnica', 'Alerta epidemiológico', 'COES', "Sala de situação")),
             selectizeInput('monitora_area_tecnica', 'Área Técnica envolvida', choices = equipes_monitora, selected = NULL, options = list(
                       onInitialize = I('function() { this.setValue(""); }')), multiple = T),
@@ -161,7 +166,14 @@
   shinyjs::reset(id = 'monitora')
   
  #-----------------------------------------------------------------------------
-   
+
+ #add em 11-mar-24 (16:04h)
+ #apagando os registros anteriores de monitoramento (evitando registros duplos)
+ id_monitorada <- DBI::dbGetQuery(conn(),"SELECT id FROM rumores_monitora WHERE monitora_encerra = 'FALSE'")
+ if(monitora_selected() %in% id_monitorada[,1]){
+    DBI::dbSendQuery(conn(), paste('DELETE FROM rumores_monitora WHERE id =',monitora_selected()))
+ }
+
  DBI::dbWriteTable(conn(),value = dadoi, name = "rumores_monitora", append = T)    
  
  on.exit(DBI::dbDisconnect(conn()))
@@ -176,4 +188,22 @@
       )
   })  #end observe event
 
-  #TODO >> atualização de status de monitoramento!!!
+  
+  observe({
+    req(rumores()[,'id'] %in% monitora_selected())
+    dadoi <- rumores()
+    dadoi <- dadoi[dadoi$id %in% monitora_selected(),]
+    if(nrow(dadoi) > 0){
+       acoes <- strsplit(dadoi$monitora_acoes, split = '\\|')  %>% unlist
+       equipes <- strsplit(dadoi$monitora_equipes, split = '\\|')  %>% unlist
+
+        updateCheckboxGroupInput(session, "monitora_lista_acoes", label = "Ações Realizadas", 
+                choices = list('Nota Informativa', 'Nota técnica', 'Alerta epidemiológico', 'COES', "Sala de situação"), selected = acoes)
+        
+        updateSelectizeInput(session, 'monitora_area_tecnica', 'Área Técnica envolvida', choices = equipes_monitora, selected = equipes, options = list(
+                      onInitialize = I('function() { this.setValue(""); }')))
+       
+
+    }
+
+  })
